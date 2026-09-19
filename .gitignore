@@ -1,2 +1,4 @@
 /data/raw
+/src/venv
+.DS_Store
 assignment.md

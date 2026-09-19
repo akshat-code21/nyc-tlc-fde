@@ -114,15 +114,22 @@ All metric definitions and thresholds are implemented in `src/metrics.py`.
 
 ## Facts / Assumptions / Bottlenecks
 
-### Facts (verified against the data or sources)
-- TLC Yellow Taxi records for Jan–Mar contain ~2–3M trips per month, released as
-  monthly Parquet files with a stable, documented schema.
+### Facts (verified against the data or sources, via `ingest.py` completeness checks)
+- TLC Yellow Taxi records for Jan–Mar 2026 contain **3.4-4.0M trips per month**
+  (Jan: 3,724,889; Feb: 3,399,866; Mar: 3,952,451), released as monthly Parquet
+  files with a stable, documented schema.
 - The Taxi Zone Lookup Table has 265 LocationIDs and is a static snapshot; it does
   not change month to month.
 - Open-Meteo provides hourly precipitation and temperature for NYC with no API key,
-  and returns a complete hourly series for the period (no missing hours).
+  and returned a complete hourly series for Jan–Mar 2026 (744/672/744 hourly rows,
+  exactly 24 per day, no missing hours).
 - Trip duration is not a column in the data: it must be computed as
   dropoff_datetime minus pickup_datetime.
+- Monthly TLC files contain a small number of pickup records outside the calendar
+  month (a few minutes before/after the boundary), which is normal TLC behavior.
+- The March file contains at least one implausibly old record (pickup timestamp
+  2008-12-31), a genuine upstream data error; validation must catch and reject it
+  rather than pass it through.
 
 ### Assumptions (judgment calls we made, and why)
 - **"Expected" duration is the median per zone-pair and hour-of-day.** No source

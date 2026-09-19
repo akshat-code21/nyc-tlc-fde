@@ -1,0 +1,45 @@
+2026-09-19 06:46:29,067 | INFO | ingest | [ingest] start for 2026-01
+2026-09-19 06:46:29,068 | INFO | ingest | Skipping download, raw file already present: yellow_tripdata_2026-01.parquet (64.2 MB)
+2026-09-19 06:46:30,186 | INFO | ingest | [completeness] yellow_tripdata_2026-01.parquet: 3,724,889 rows
+2026-09-19 06:46:30,212 | INFO | ingest | [completeness] yellow_tripdata_2026-01.parquet: pickup range 2025-12-31 23:57:29 .. 2026-02-01 00:45:01 (expected within 2026-01-01 .. 2026-01-31)
+2026-09-19 06:46:30,218 | INFO | ingest | Skipping download, raw file already present: taxi_zone_lookup.csv (0.0 MB)
+2026-09-19 06:46:30,221 | INFO | ingest | [completeness] taxi_zone_lookup.csv: 265 rows
+2026-09-19 06:46:50,733 | INFO | ingest | [ingest] start for 2026-01
+2026-09-19 06:46:50,733 | INFO | ingest | Skipping download, raw file already present: yellow_tripdata_2026-01.parquet (64.2 MB)
+2026-09-19 06:46:50,931 | INFO | ingest | [completeness] yellow_tripdata_2026-01.parquet: 3,724,889 rows
+2026-09-19 06:46:50,955 | INFO | ingest | [completeness] yellow_tripdata_2026-01.parquet: pickup range 2025-12-31 23:57:29 .. 2026-02-01 00:45:01 (expected within 2026-01-01 .. 2026-01-31)
+2026-09-19 06:46:50,960 | INFO | ingest | Skipping download, raw file already present: taxi_zone_lookup.csv (0.0 MB)
+2026-09-19 06:46:50,963 | INFO | ingest | [completeness] taxi_zone_lookup.csv: 265 rows
+2026-09-19 06:46:50,966 | INFO | ingest | Requesting Open-Meteo archive for 2026-01 (2026-01-01 .. 2026-01-31)
+2026-09-19 06:46:51,623 | INFO | ingest | Saved 744 hourly weather rows -> weather_2026-01.csv
+2026-09-19 06:46:51,626 | INFO | ingest | [completeness] weather_2026-01.csv: 744 hourly rows (expected ~744)
+2026-09-19 06:46:51,628 | INFO | ingest | [ingest] done for 2026-01: trips=yellow_tripdata_2026-01.parquet, zones=taxi_zone_lookup.csv, weather=weather_2026-01.csv
+2026-09-19 06:46:52,025 | INFO | ingest | [ingest] start for 2026-01
+2026-09-19 06:46:52,025 | INFO | ingest | Skipping download, raw file already present: yellow_tripdata_2026-01.parquet (64.2 MB)
+2026-09-19 06:46:52,116 | INFO | ingest | [completeness] yellow_tripdata_2026-01.parquet: 3,724,889 rows
+2026-09-19 06:46:52,140 | INFO | ingest | [completeness] yellow_tripdata_2026-01.parquet: pickup range 2025-12-31 23:57:29 .. 2026-02-01 00:45:01 (expected within 2026-01-01 .. 2026-01-31)
+2026-09-19 06:46:52,145 | INFO | ingest | Skipping download, raw file already present: taxi_zone_lookup.csv (0.0 MB)
+2026-09-19 06:46:52,147 | INFO | ingest | [completeness] taxi_zone_lookup.csv: 265 rows
+2026-09-19 06:46:52,148 | INFO | ingest | Skipping download, raw file already present: weather_2026-01.csv (0.0 MB)
+2026-09-19 06:46:52,149 | INFO | ingest | [completeness] weather_2026-01.csv: 744 hourly rows (expected ~744)
+2026-09-19 06:46:52,149 | INFO | ingest | [ingest] done for 2026-01: trips=yellow_tripdata_2026-01.parquet, zones=taxi_zone_lookup.csv, weather=weather_2026-01.csv
+2026-09-19 06:46:57,522 | INFO | ingest | [ingest] start for 2026-02
+2026-09-19 06:46:57,522 | INFO | ingest | Skipping download, raw file already present: yellow_tripdata_2026-02.parquet (58.7 MB)
+2026-09-19 06:46:57,636 | INFO | ingest | [completeness] yellow_tripdata_2026-02.parquet: 3,399,866 rows
+2026-09-19 06:46:57,652 | INFO | ingest | [completeness] yellow_tripdata_2026-02.parquet: pickup range 2026-01-31 23:31:23 .. 2026-03-01 00:51:48 (expected within 2026-02-01 .. 2026-02-28)
+2026-09-19 06:46:57,656 | INFO | ingest | Skipping download, raw file already present: taxi_zone_lookup.csv (0.0 MB)
+2026-09-19 06:46:57,657 | INFO | ingest | [completeness] taxi_zone_lookup.csv: 265 rows
+2026-09-19 06:46:57,658 | INFO | ingest | Requesting Open-Meteo archive for 2026-02 (2026-02-01 .. 2026-02-28)
+2026-09-19 06:46:58,270 | INFO | ingest | Saved 672 hourly weather rows -> weather_2026-02.csv
+2026-09-19 06:46:58,274 | INFO | ingest | [completeness] weather_2026-02.csv: 672 hourly rows (expected ~672)
+2026-09-19 06:46:58,277 | INFO | ingest | [ingest] done for 2026-02: trips=yellow_tripdata_2026-02.parquet, zones=taxi_zone_lookup.csv, weather=weather_2026-02.csv
+2026-09-19 06:46:58,277 | INFO | ingest | [ingest] start for 2026-03
+2026-09-19 06:46:58,278 | INFO | ingest | Skipping download, raw file already present: yellow_tripdata_2026-03.parquet (67.9 MB)
+2026-09-19 06:46:58,368 | INFO | ingest | [completeness] yellow_tripdata_2026-03.parquet: 3,952,451 rows
+2026-09-19 06:46:58,386 | INFO | ingest | [completeness] yellow_tripdata_2026-03.parquet: pickup range 2008-12-31 23:03:20 .. 2026-04-01 00:06:25 (expected within 2026-03-01 .. 2026-03-31)
+2026-09-19 06:46:58,392 | INFO | ingest | Skipping download, raw file already present: taxi_zone_lookup.csv (0.0 MB)
+2026-09-19 06:46:58,393 | INFO | ingest | [completeness] taxi_zone_lookup.csv: 265 rows
+2026-09-19 06:46:58,394 | INFO | ingest | Requesting Open-Meteo archive for 2026-03 (2026-03-01 .. 2026-03-31)
+2026-09-19 06:46:59,012 | INFO | ingest | Saved 744 hourly weather rows -> weather_2026-03.csv
+2026-09-19 06:46:59,015 | INFO | ingest | [completeness] weather_2026-03.csv: 744 hourly rows (expected ~744)
+2026-09-19 06:46:59,018 | INFO | ingest | [ingest] done for 2026-03: trips=yellow_tripdata_2026-03.parquet, zones=taxi_zone_lookup.csv, weather=weather_2026-03.csv
