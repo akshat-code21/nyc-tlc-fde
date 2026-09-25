@@ -100,10 +100,10 @@ REQUIRED_TRIP_COLUMNS = [
 REQUIRED_ZONE_COLUMNS = ["LocationID", "Borough", "Zone", "service_zone"]
 
 # Completeness bounds for monthly trip counts.
-# Judgment call: recent Yellow months have run ~1-3M rows; we use a generous
-# 500k-5M band. The point of the check is to catch truncated/empty downloads,
-# not to pin an exact forecast. Verified against actual files during first run.
-MIN_TRIP_ROWS, MAX_TRIP_ROWS = 500_000, 5_000_000
+# Judgment call: the Jan-Mar 2026 Yellow files were measured at ~3.4-4.0M rows;
+# we use a generous 500k-6M band. The point of the check is to catch
+# truncated/empty downloads, not to pin an exact forecast.
+MIN_TRIP_ROWS, MAX_TRIP_ROWS = 500_000, 6_000_000
 
 MONTH_FORMAT = "%Y-%m"
 
@@ -128,17 +128,16 @@ def _month_bounds(month: str) -> tuple[str, str]:
 def _download(url: str, dest: Path) -> Path:
     """Stream a URL to dest. Raises SourceMissingError on any failure."""
     log.info(f"Downloading {url} -> {dest.name}")
+    tmp = dest.with_suffix(dest.suffix + ".part")
     try:
         with requests.get(url, stream=True, timeout=120) as resp:
             resp.raise_for_status()
-            tmp = dest.with_suffix(dest.suffix + ".part")
             with open(tmp, "wb") as f:
                 for chunk in resp.iter_content(chunk_size=1 << 20):
                     f.write(chunk)
             tmp.replace(dest)  # atomic move only after full download
     except requests.RequestException as e:
-        if dest.exists():
-            dest.unlink()  # never leave a partial file behind
+        tmp.unlink(missing_ok=True)  # clean up the partial .part file, not dest
         raise SourceMissingError(f"Failed to download {url}: {e}") from e
     return dest
 
@@ -260,11 +259,14 @@ def _check_zone_lookup_completeness(path: Path) -> None:
 def fetch_weather(month: str) -> Path:
     """Fetch hourly NYC weather for one month via the Open-Meteo archive API.
 
-    Writes data/raw/weather_<month>.csv. Idempotent. The API is queried in UTC
-    (timezone=utc) so join keys are unambiguous; trip timestamps are local New
-    York time. Judgment call: for the binary rainy/dry split used in metric 4,
-    a one-hour offset at month/DST boundaries is immaterial, and this avoids
-    timezone-conversion complexity in the pipeline. Documented as an assumption.
+    Writes data/raw/weather_<month>.csv. Idempotent. The API is queried in
+    local New York time (timezone=America/New_York) on purpose: TLC trip
+    timestamps are also local New York time, so requesting the matching
+    timezone lets the model join weather to trips directly on the local pickup
+    hour with no conversion. (An earlier draft used UTC and reasoned the shift
+    was immaterial; that was wrong - local-vs-UTC is a systematic 4-5 hour
+    offset that would attribute rain to the wrong trips. Requesting the
+    matching timezone eliminates the conversion entirely.)
     """
     month = _validate_month(month)
     dest = RAW_DIR / f"weather_{month}.csv"
@@ -280,11 +282,15 @@ def fetch_weather(month: str) -> Path:
         "start_date": start,
         "end_date": end,
         "hourly": "temperature_2m,precipitation",
-        "timezone": "UTC",
+        # Local NY time, matching TLC pickup timestamps (see docstring above).
+        "timezone": "America/New_York",
     }
     log.info(f"Requesting Open-Meteo archive for {month} ({start} .. {end})")
     try:
-        resp = requests.get(OPEN_METEO_URL, params=params, timeout=60)
+        # The archive API is slow: observed responses taking > 30 s and up to
+        # ~1 min in live tests. A 60 s timeout failed in practice, so this is
+        # deliberately generous. Single value applies to connect and read.
+        resp = requests.get(OPEN_METEO_URL, params=params, timeout=300)
         resp.raise_for_status()
         payload = resp.json()
     except requests.RequestException as e:

@@ -42,7 +42,7 @@ reasons, and identical output on re-runs.
 |---|-------------------|-------------|---------------|------------------------|-------|--------------------------|
 | 1 | Which zone-hour combinations have trips running significantly longer than expected? | Pickup/dropoff timestamps, pickup/dropoff LocationID, trip distance, fare | NYC Taxi & Limousine Commission (TLC) | Yellow Taxi Trip Records - bulk Parquet download per month (`https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page`) | 1 row = 1 completed trip | No ground-truth "expected" duration (must be derived); timestamps occasionally invalid (dropoff before pickup); no traffic/congestion data to explain *why* trips are long |
 | 2 | How does weather (rain/temperature) relate to trip delays? | Hourly precipitation and temperature for NYC | Open-Meteo | Historical Weather API - REST, no key required (`https://open-meteo.com/en/docs/historical-weather-api`) | 1 row = 1 hour, city-wide | City-wide aggregate, not route-specific - a trip from JFK to Manhattan experiences different conditions than "NYC average" implies; cannot capture localized events (e.g., a storm hitting only one borough) |
-| 3 | Which boroughs/zones are affected (for rebalancing decisions)? | LocationID → Borough / Zone / service zone mapping | NYC TLC | Taxi Zone Lookup Table - CSV file linked from the same TLC page | 1 row = 1 LocationID (265 zones) | Lookup is static (snapshot at download time); a small number of trip records reference LocationIDs not present in the lookup (treated as unknown zone) |
+| 3 | Which boroughs/zones are affected (for rebalancing decisions)? | LocationID → Borough / Zone / service zone mapping | NYC TLC | Taxi Zone Lookup Table - CSV file linked from the same TLC page | 1 row = 1 LocationID (265 zones) | Lookup is static (snapshot at download time). Profiling found **zero** trip records with a LocationID missing from the lookup, so the join is currently complete; the rule is retained as a guard against future schema changes. Note that LocationID 264 is literally named "Unknown", so some trips map to a zone with no meaningful borough |
 
 ---
 
@@ -58,7 +58,41 @@ different schemas and are not needed for this KPI.
 
 ## Setup & Usage
 
+**Requirements:** Python 3.12 with `pandas`, `pyarrow` and `requests`
+(`pip install -r requirements.txt`). A full run downloads ~190 MB of TLC data and
+takes roughly 2–3 minutes per month on a laptop.
 
+**Run the pipeline stage by stage** (each is idempotent, so re-running is safe):
+
+```bash
+# Stage 1 - fetch raw sources into data/raw/ (skips files already present)
+python src/ingest.py 2026-01
+
+# Stage 2 - profile + validate, writing data/processed/ and data/rejected/
+python src/validate.py 2026-01
+
+# All three months
+python src/ingest.py 2026-01 2026-02 2026-03
+python src/validate.py 2026-01 2026-02 2026-03
+```
+
+Stages 3 (`model.py`), 4 (`metrics.py`) and the orchestrator (`pipeline.py`) are
+documented below as they are added. `pipeline.py 2026-01` will run the whole chain
+once it exists.
+
+**Explore the data:** open `notebooks/exploration.ipynb` (already executed, with
+outputs stored) for the profiling evidence behind every validation rule.
+
+**Outputs produced so far:**
+
+| Path | Contents |
+|---|---|
+| `data/raw/yellow_tripdata_<month>.parquet` | Untouched TLC download, read-only after ingest |
+| `data/raw/weather_<month>.csv` | Hourly Open-Meteo data, local New York time |
+| `data/raw/taxi_zone_lookup.csv` | Zone lookup (static, fetched once) |
+| `data/processed/<month>_clean.parquet` | Rows passing all business rules, plus quality flags |
+| `data/rejected/<month>_rejected.csv` | Every rejected row with a `rejection_reason` column |
+| `logs/pipeline_run.log` | Stage-by-stage log: row counts in/out, rule violations, errors |
 ---
 
 ## Metrics
@@ -130,6 +164,18 @@ All metric definitions and thresholds are implemented in `src/metrics.py`.
 - The March file contains at least one implausibly old record (pickup timestamp
   2008-12-31), a genuine upstream data error; validation must catch and reject it
   rather than pass it through.
+- **~29% of trips have a null `passenger_count`** (Jan: 1,088,058 of 3,724,889). The
+  nulls are not random: they form one contiguous block at the tail of each monthly
+  file, and the *exact same* rows have null `RatecodeID`, `store_and_fwd_flag`,
+  `congestion_surcharge`, `Airport_fee` and `payment_type == 0`. This is a partial
+  upstream feed, not missing-at-random data. The block's trips are otherwise normal
+  (median duration 16.0 min, median fare $22.21, spanning the full month).
+- The raw files contain **zero full-row duplicates**. Tens of thousands of rows share
+  the (pickup, dropoff, pickup-zone, dropoff-zone) key, but with differing distances
+  and fares, i.e. genuinely distinct trips that coincided to the second.
+- After validation, 96.7-97.0% of rows survive per month (Jan: 3,590,046 valid /
+  134,843 rejected; Feb: 3,288,955 / 110,911; Mar: 3,831,806 / 120,645). Clean +
+  rejected reconciles exactly to the raw row count, so nothing is silently dropped.
 
 ### Assumptions (judgment calls we made, and why)
 - **"Expected" duration is the median per zone-pair and hour-of-day.** No source
@@ -143,8 +189,29 @@ All metric definitions and thresholds are implemented in `src/metrics.py`.
   have no usable benchmark.
 - **"Rainy" means hourly precipitation > 0 at pickup.** Binary rather than
   intensity-based: simple and defensible; can be refined later.
-- **Passenger count of 0 is treated as invalid** (business rule: 1–6), since it most
-  likely indicates missing data rather than a real trip.
+- **A missing `passenger_count` does not invalidate a trip; a populated value outside
+  1–6 does.** The assignment's example rule reads "passenger count between 1 and 6",
+  but applying it literally would reject the ~29% null block described above and
+  discard roughly a million real trips per month. No metric uses passenger count, so
+  the cost of that rejection is high and the benefit is zero. Rows with a *populated*
+  value of 0 or 7–9 (~14.8k/month) are still rejected, and the missing ones are
+  carried through as a `passenger_count_missing` flag for the data-quality view.
+- **Minimum trip duration is 1 minute, not > 0.** 45,069 rows have pickup == dropoff
+  to the second *while reporting a non-zero distance*, and ~31,000 more last between
+  1 and 30 seconds. A trip cannot cover ground in zero seconds, so these are timestamp
+  artifacts that would corrupt the duration KPI. The bound is a single named constant
+  (`MIN_DURATION_MIN`) in `src/validate.py`.
+- **Trips over 100 miles are rejected as data-entry errors.** 162–172 rows per month
+  exceed 100 miles, with maxima in the hundreds of thousands of miles. Genuine long
+  runs (JFK ↔ Manhattan) are ~30–35 miles, so the cap is generous; without it these
+  rows would badly distort revenue-per-mile (metric 3).
+- **Zero-fare and zero-distance trips are kept, not rejected.** They are the subject
+  of metric 5, so they are evidence rather than error. Only *negative* fares (refunds
+  and disputes) are rejected.
+- **Rows sharing a (pickup, dropoff, zone-pair) key are kept and flagged, not
+  deduplicated.** See the Facts entry above: the shared keys carry different fares and
+  distances, so removing them would risk deleting real trips. The
+  `is_duplicate_key` flag surfaces them in the data-quality view instead.
 
 ### Bottlenecks / Limitations (what this analysis cannot do)
 - **No ground truth for "expected":** our benchmark is derived from the same data it

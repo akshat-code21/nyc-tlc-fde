@@ -43,3 +43,402 @@
 2026-09-19 06:46:59,012 | INFO | ingest | Saved 744 hourly weather rows -> weather_2026-03.csv
 2026-09-19 06:46:59,015 | INFO | ingest | [completeness] weather_2026-03.csv: 744 hourly rows (expected ~744)
 2026-09-19 06:46:59,018 | INFO | ingest | [ingest] done for 2026-03: trips=yellow_tripdata_2026-03.parquet, zones=taxi_zone_lookup.csv, weather=weather_2026-03.csv
+2026-09-19 06:49:30,436 | INFO | ingest | [ingest] start for 2026-01
+2026-09-19 06:49:30,436 | INFO | ingest | Skipping download, raw file already present: yellow_tripdata_2026-01.parquet (64.2 MB)
+2026-09-19 06:49:30,707 | INFO | ingest | [completeness] yellow_tripdata_2026-01.parquet: 3,724,889 rows
+2026-09-19 06:49:30,727 | INFO | ingest | [completeness] yellow_tripdata_2026-01.parquet: pickup range 2025-12-31 23:57:29 .. 2026-02-01 00:45:01 (expected within 2026-01-01 .. 2026-01-31)
+2026-09-19 06:49:30,732 | INFO | ingest | Skipping download, raw file already present: taxi_zone_lookup.csv (0.0 MB)
+2026-09-19 06:49:30,737 | INFO | ingest | [completeness] taxi_zone_lookup.csv: 265 rows
+2026-09-19 06:49:30,738 | INFO | ingest | Skipping download, raw file already present: weather_2026-01.csv (0.0 MB)
+2026-09-19 06:49:30,739 | INFO | ingest | [completeness] weather_2026-01.csv: 744 hourly rows (expected ~744)
+2026-09-19 06:49:30,739 | INFO | ingest | [ingest] done for 2026-01: trips=yellow_tripdata_2026-01.parquet, zones=taxi_zone_lookup.csv, weather=weather_2026-01.csv
+2026-09-19 06:50:27,372 | INFO | ingest | [ingest] start for 2026-01
+2026-09-19 06:50:27,372 | INFO | ingest | Skipping download, raw file already present: yellow_tripdata_2026-01.parquet (64.2 MB)
+2026-09-19 06:50:27,546 | INFO | ingest | [completeness] yellow_tripdata_2026-01.parquet: 3,724,889 rows
+2026-09-19 06:50:27,562 | INFO | ingest | [completeness] yellow_tripdata_2026-01.parquet: pickup range 2025-12-31 23:57:29 .. 2026-02-01 00:45:01 (expected within 2026-01-01 .. 2026-01-31)
+2026-09-19 06:50:27,567 | INFO | ingest | Skipping download, raw file already present: taxi_zone_lookup.csv (0.0 MB)
+2026-09-19 06:50:27,571 | INFO | ingest | [completeness] taxi_zone_lookup.csv: 265 rows
+2026-09-19 06:50:27,571 | INFO | ingest | Requesting Open-Meteo archive for 2026-01 (2026-01-01 .. 2026-01-31)
+2026-09-19 06:50:28,247 | INFO | ingest | Saved 744 hourly weather rows -> weather_2026-01.csv
+2026-09-19 06:50:28,250 | INFO | ingest | [completeness] weather_2026-01.csv: 744 hourly rows (expected ~744)
+2026-09-19 06:50:28,253 | INFO | ingest | [ingest] done for 2026-01: trips=yellow_tripdata_2026-01.parquet, zones=taxi_zone_lookup.csv, weather=weather_2026-01.csv
+2026-09-19 06:50:28,253 | INFO | ingest | [ingest] start for 2026-02
+2026-09-19 06:50:28,253 | INFO | ingest | Skipping download, raw file already present: yellow_tripdata_2026-02.parquet (58.7 MB)
+2026-09-19 06:50:28,335 | INFO | ingest | [completeness] yellow_tripdata_2026-02.parquet: 3,399,866 rows
+2026-09-19 06:50:28,348 | INFO | ingest | [completeness] yellow_tripdata_2026-02.parquet: pickup range 2026-01-31 23:31:23 .. 2026-03-01 00:51:48 (expected within 2026-02-01 .. 2026-02-28)
+2026-09-19 06:50:28,354 | INFO | ingest | Skipping download, raw file already present: taxi_zone_lookup.csv (0.0 MB)
+2026-09-19 06:50:28,355 | INFO | ingest | [completeness] taxi_zone_lookup.csv: 265 rows
+2026-09-19 06:50:28,355 | INFO | ingest | Requesting Open-Meteo archive for 2026-02 (2026-02-01 .. 2026-02-28)
+2026-09-19 06:50:28,972 | INFO | ingest | Saved 672 hourly weather rows -> weather_2026-02.csv
+2026-09-19 06:50:28,976 | INFO | ingest | [completeness] weather_2026-02.csv: 672 hourly rows (expected ~672)
+2026-09-19 06:50:28,980 | INFO | ingest | [ingest] done for 2026-02: trips=yellow_tripdata_2026-02.parquet, zones=taxi_zone_lookup.csv, weather=weather_2026-02.csv
+2026-09-19 06:50:28,980 | INFO | ingest | [ingest] start for 2026-03
+2026-09-19 06:50:28,981 | INFO | ingest | Skipping download, raw file already present: yellow_tripdata_2026-03.parquet (67.9 MB)
+2026-09-19 06:50:29,099 | INFO | ingest | [completeness] yellow_tripdata_2026-03.parquet: 3,952,451 rows
+2026-09-19 06:50:29,112 | INFO | ingest | [completeness] yellow_tripdata_2026-03.parquet: pickup range 2008-12-31 23:03:20 .. 2026-04-01 00:06:25 (expected within 2026-03-01 .. 2026-03-31)
+2026-09-19 06:50:29,117 | INFO | ingest | Skipping download, raw file already present: taxi_zone_lookup.csv (0.0 MB)
+2026-09-19 06:50:29,117 | INFO | ingest | [completeness] taxi_zone_lookup.csv: 265 rows
+2026-09-19 06:50:29,117 | INFO | ingest | Requesting Open-Meteo archive for 2026-03 (2026-03-01 .. 2026-03-31)
+2026-09-19 06:50:29,730 | INFO | ingest | Saved 744 hourly weather rows -> weather_2026-03.csv
+2026-09-19 06:50:29,732 | INFO | ingest | [completeness] weather_2026-03.csv: 744 hourly rows (expected ~744)
+2026-09-19 06:50:29,735 | INFO | ingest | [ingest] done for 2026-03: trips=yellow_tripdata_2026-03.parquet, zones=taxi_zone_lookup.csv, weather=weather_2026-03.csv
+2026-09-19 06:51:05,707 | INFO | ingest | [ingest] start for 2026-01
+2026-09-19 06:51:05,707 | INFO | ingest | Skipping download, raw file already present: yellow_tripdata_2026-01.parquet (64.2 MB)
+2026-09-19 06:51:05,960 | INFO | ingest | [completeness] yellow_tripdata_2026-01.parquet: 3,724,889 rows
+2026-09-19 06:51:05,984 | INFO | ingest | [completeness] yellow_tripdata_2026-01.parquet: pickup range 2025-12-31 23:57:29 .. 2026-02-01 00:45:01 (expected within 2026-01-01 .. 2026-01-31)
+2026-09-19 06:51:05,989 | INFO | ingest | Skipping download, raw file already present: taxi_zone_lookup.csv (0.0 MB)
+2026-09-19 06:51:05,994 | INFO | ingest | [completeness] taxi_zone_lookup.csv: 265 rows
+2026-09-19 06:51:05,995 | INFO | ingest | Skipping download, raw file already present: weather_2026-01.csv (0.0 MB)
+2026-09-19 06:51:05,996 | INFO | ingest | [completeness] weather_2026-01.csv: 744 hourly rows (expected ~744)
+2026-09-19 06:51:05,996 | INFO | ingest | [ingest] done for 2026-01: trips=yellow_tripdata_2026-01.parquet, zones=taxi_zone_lookup.csv, weather=weather_2026-01.csv
+2026-09-25 12:00:15,347 | INFO | ingest | [ingest] start for 2026-01
+2026-09-25 12:00:15,347 | INFO | ingest | Skipping download, raw file already present: yellow_tripdata_2026-01.parquet (64.2 MB)
+2026-09-25 12:00:15,724 | INFO | ingest | [completeness] yellow_tripdata_2026-01.parquet: 3,724,889 rows
+2026-09-25 12:00:15,754 | INFO | ingest | [completeness] yellow_tripdata_2026-01.parquet: pickup range 2025-12-31 23:57:29 .. 2026-02-01 00:45:01 (expected within 2026-01-01 .. 2026-01-31)
+2026-09-25 12:00:15,760 | INFO | ingest | Skipping download, raw file already present: taxi_zone_lookup.csv (0.0 MB)
+2026-09-25 12:00:15,770 | INFO | ingest | [completeness] taxi_zone_lookup.csv: 265 rows
+2026-09-25 12:00:15,772 | INFO | ingest | Skipping download, raw file already present: weather_2026-01.csv (0.0 MB)
+2026-09-25 12:00:15,773 | INFO | ingest | [completeness] weather_2026-01.csv: 744 hourly rows (expected ~744)
+2026-09-25 12:00:15,773 | INFO | ingest | [ingest] done for 2026-01: trips=yellow_tripdata_2026-01.parquet, zones=taxi_zone_lookup.csv, weather=weather_2026-01.csv
+2026-09-25 12:00:15,773 | INFO | validate | === VALIDATE START: 2026-01 ===
+2026-09-25 12:00:16,064 | INFO | validate | [profile] shape: 3,724,889 rows x 20 cols
+2026-09-25 12:00:16,067 | INFO | validate | [profile] dtypes:
+VendorID                          int32
+tpep_pickup_datetime     datetime64[us]
+tpep_dropoff_datetime    datetime64[us]
+passenger_count                 float64
+trip_distance                   float64
+RatecodeID                      float64
+store_and_fwd_flag                  str
+PULocationID                      int32
+DOLocationID                      int32
+payment_type                      int64
+fare_amount                     float64
+extra                           float64
+mta_tax                         float64
+tip_amount                      float64
+tolls_amount                    float64
+improvement_surcharge           float64
+total_amount                    float64
+congestion_surcharge            float64
+Airport_fee                     float64
+cbd_congestion_fee              float64
+2026-09-25 12:00:16,206 | INFO | validate | [profile] null counts (non-zero only):
+passenger_count         1088058
+RatecodeID              1088058
+store_and_fwd_flag      1088058
+congestion_surcharge    1088058
+Airport_fee             1088058
+2026-09-25 12:00:16,330 | INFO | validate | [profile] duration_min quantiles:
+0.00     -11.70
+0.01       0.00
+0.50      13.37
+0.99      71.43
+1.00    7507.90
+2026-09-25 12:00:16,402 | INFO | validate | [profile] fare_amount quantiles:
+0.00   -2555.2
+0.01      -3.0
+0.50      15.6
+0.99      81.4
+1.00    2555.2
+2026-09-25 12:00:16,479 | INFO | validate | [profile] trip_distance quantiles:
+0.00         0.00
+0.01         0.00
+0.50         1.81
+0.99        19.54
+1.00    269097.48
+2026-09-25 12:00:16,527 | INFO | validate | [profile] passenger_count quantiles:
+0.00    0.0
+0.01    1.0
+0.50    1.0
+0.99    4.0
+1.00    9.0
+2026-09-25 12:00:18,983 | INFO | validate | [profile] duplicates: 0 full-row, 35723 on (pickup, dropoff, PU, DO)
+2026-09-25 12:00:18,988 | INFO | validate | [profile] pickup range: 2025-12-31 23:57:29 .. 2026-02-01 00:45:01
+2026-09-25 12:00:19,072 | INFO | validate | [rules] invalid_duration         violations: 85,290
+2026-09-25 12:00:19,072 | INFO | validate | [rules] negative_fare            violations: 39,463
+2026-09-25 12:00:19,073 | INFO | validate | [rules] implausible_distance     violations: 162
+2026-09-25 12:00:19,074 | INFO | validate | [rules] unknown_pickup_zone      violations: 0
+2026-09-25 12:00:19,074 | INFO | validate | [rules] unknown_dropoff_zone     violations: 0
+2026-09-25 12:00:19,075 | INFO | validate | [rules] invalid_passenger_count  violations: 14,794
+2026-09-25 12:00:19,076 | INFO | validate | [rules] pickup_outside_month     violations: 1
+2026-09-25 12:00:23,217 | INFO | validate | [validate] 2026-01: 3,590,046 valid, 134,843 rejected (3.62%)
+2026-09-25 12:00:23,274 | INFO | validate | [validate] rejection reasons:
+rejection_reason
+invalid_duration           85290
+negative_fare              39463
+invalid_passenger_count    14794
+implausible_distance         162
+pickup_outside_month           1
+2026-09-25 12:00:23,274 | INFO | validate | === VALIDATE END: 2026-01 ===
+2026-09-25 12:00:24,893 | INFO | validate | [validate] wrote 2026-01_clean.parquet (3,590,046 rows) and 2026-01_rejected.csv (134,843 rows)
+2026-09-25 12:00:55,210 | INFO | ingest | [ingest] start for 2026-02
+2026-09-25 12:00:55,211 | INFO | ingest | Skipping download, raw file already present: yellow_tripdata_2026-02.parquet (58.7 MB)
+2026-09-25 12:00:55,383 | INFO | ingest | [completeness] yellow_tripdata_2026-02.parquet: 3,399,866 rows
+2026-09-25 12:00:55,399 | INFO | ingest | [completeness] yellow_tripdata_2026-02.parquet: pickup range 2026-01-31 23:31:23 .. 2026-03-01 00:51:48 (expected within 2026-02-01 .. 2026-02-28)
+2026-09-25 12:00:55,403 | INFO | ingest | Skipping download, raw file already present: taxi_zone_lookup.csv (0.0 MB)
+2026-09-25 12:00:55,408 | INFO | ingest | [completeness] taxi_zone_lookup.csv: 265 rows
+2026-09-25 12:00:55,409 | INFO | ingest | Skipping download, raw file already present: weather_2026-02.csv (0.0 MB)
+2026-09-25 12:00:55,409 | INFO | ingest | [completeness] weather_2026-02.csv: 672 hourly rows (expected ~672)
+2026-09-25 12:00:55,410 | INFO | ingest | [ingest] done for 2026-02: trips=yellow_tripdata_2026-02.parquet, zones=taxi_zone_lookup.csv, weather=weather_2026-02.csv
+2026-09-25 12:00:55,410 | INFO | validate | === VALIDATE START: 2026-02 ===
+2026-09-25 12:00:55,568 | INFO | validate | [profile] shape: 3,399,866 rows x 20 cols
+2026-09-25 12:00:55,570 | INFO | validate | [profile] dtypes:
+VendorID                          int32
+tpep_pickup_datetime     datetime64[us]
+tpep_dropoff_datetime    datetime64[us]
+passenger_count                 float64
+trip_distance                   float64
+RatecodeID                      float64
+store_and_fwd_flag                  str
+PULocationID                      int32
+DOLocationID                      int32
+payment_type                      int64
+fare_amount                     float64
+extra                           float64
+mta_tax                         float64
+tip_amount                      float64
+tolls_amount                    float64
+improvement_surcharge           float64
+total_amount                    float64
+congestion_surcharge            float64
+Airport_fee                     float64
+cbd_congestion_fee              float64
+2026-09-25 12:00:55,638 | INFO | validate | [profile] null counts (non-zero only):
+passenger_count         1023317
+RatecodeID              1023317
+store_and_fwd_flag      1023317
+congestion_surcharge    1023317
+Airport_fee             1023317
+2026-09-25 12:00:55,736 | INFO | validate | [profile] duration_min quantiles:
+0.00      -1.05
+0.01       0.00
+0.50      14.02
+0.99      72.52
+1.00    9265.15
+2026-09-25 12:00:55,800 | INFO | validate | [profile] fare_amount quantiles:
+0.00   -2084.1
+0.01       3.0
+0.50      16.3
+0.99      80.7
+1.00    2084.1
+2026-09-25 12:00:55,863 | INFO | validate | [profile] trip_distance quantiles:
+0.00         0.00
+0.01         0.00
+0.50         1.80
+0.99        19.41
+1.00    328522.20
+2026-09-25 12:00:55,897 | INFO | validate | [profile] passenger_count quantiles:
+0.00    0.0
+0.01    1.0
+0.50    1.0
+0.99    4.0
+1.00    9.0
+2026-09-25 12:00:57,894 | INFO | validate | [profile] duplicates: 0 full-row, 24402 on (pickup, dropoff, PU, DO)
+2026-09-25 12:00:57,899 | INFO | validate | [profile] pickup range: 2026-01-31 23:31:23 .. 2026-03-01 00:51:48
+2026-09-25 12:00:57,974 | INFO | validate | [rules] invalid_duration         violations: 74,974
+2026-09-25 12:00:57,975 | INFO | validate | [rules] negative_fare            violations: 26,721
+2026-09-25 12:00:57,975 | INFO | validate | [rules] implausible_distance     violations: 172
+2026-09-25 12:00:57,976 | INFO | validate | [rules] unknown_pickup_zone      violations: 0
+2026-09-25 12:00:57,977 | INFO | validate | [rules] unknown_dropoff_zone     violations: 0
+2026-09-25 12:00:57,978 | INFO | validate | [rules] invalid_passenger_count  violations: 12,888
+2026-09-25 12:00:57,978 | INFO | validate | [rules] pickup_outside_month     violations: 4
+2026-09-25 12:01:01,235 | INFO | validate | [validate] 2026-02: 3,288,955 valid, 110,911 rejected (3.26%)
+2026-09-25 12:01:01,277 | INFO | validate | [validate] rejection reasons:
+rejection_reason
+invalid_duration           74974
+negative_fare              26721
+invalid_passenger_count    12888
+implausible_distance         172
+pickup_outside_month           4
+2026-09-25 12:01:01,277 | INFO | validate | === VALIDATE END: 2026-02 ===
+2026-09-25 12:01:02,562 | INFO | validate | [validate] wrote 2026-02_clean.parquet (3,288,955 rows) and 2026-02_rejected.csv (110,911 rows)
+2026-09-25 12:01:02,563 | INFO | ingest | [ingest] start for 2026-03
+2026-09-25 12:01:02,563 | INFO | ingest | Skipping download, raw file already present: yellow_tripdata_2026-03.parquet (67.9 MB)
+2026-09-25 12:01:02,648 | INFO | ingest | [completeness] yellow_tripdata_2026-03.parquet: 3,952,451 rows
+2026-09-25 12:01:02,664 | INFO | ingest | [completeness] yellow_tripdata_2026-03.parquet: pickup range 2008-12-31 23:03:20 .. 2026-04-01 00:06:25 (expected within 2026-03-01 .. 2026-03-31)
+2026-09-25 12:01:02,669 | INFO | ingest | Skipping download, raw file already present: taxi_zone_lookup.csv (0.0 MB)
+2026-09-25 12:01:02,670 | INFO | ingest | [completeness] taxi_zone_lookup.csv: 265 rows
+2026-09-25 12:01:02,670 | INFO | ingest | Skipping download, raw file already present: weather_2026-03.csv (0.0 MB)
+2026-09-25 12:01:02,671 | INFO | ingest | [completeness] weather_2026-03.csv: 744 hourly rows (expected ~744)
+2026-09-25 12:01:02,671 | INFO | ingest | [ingest] done for 2026-03: trips=yellow_tripdata_2026-03.parquet, zones=taxi_zone_lookup.csv, weather=weather_2026-03.csv
+2026-09-25 12:01:02,671 | INFO | validate | === VALIDATE START: 2026-03 ===
+2026-09-25 12:01:02,856 | INFO | validate | [profile] shape: 3,952,451 rows x 20 cols
+2026-09-25 12:01:02,857 | INFO | validate | [profile] dtypes:
+VendorID                          int32
+tpep_pickup_datetime     datetime64[us]
+tpep_dropoff_datetime    datetime64[us]
+passenger_count                 float64
+trip_distance                   float64
+RatecodeID                      float64
+store_and_fwd_flag                  str
+PULocationID                      int32
+DOLocationID                      int32
+payment_type                      int64
+fare_amount                     float64
+extra                           float64
+mta_tax                         float64
+tip_amount                      float64
+tolls_amount                    float64
+improvement_surcharge           float64
+total_amount                    float64
+congestion_surcharge            float64
+Airport_fee                     float64
+cbd_congestion_fee              float64
+2026-09-25 12:01:02,970 | INFO | validate | [profile] null counts (non-zero only):
+passenger_count         945748
+RatecodeID              945748
+store_and_fwd_flag      945748
+congestion_surcharge    945748
+Airport_fee             945748
+2026-09-25 12:01:03,093 | INFO | validate | [profile] duration_min quantiles:
+0.00    -186.67
+0.01       0.00
+0.50      13.28
+0.99      75.25
+1.00    7620.60
+2026-09-25 12:01:03,173 | INFO | validate | [profile] fare_amount quantiles:
+0.00    -990.0
+0.01       3.0
+0.50      15.6
+0.99      81.4
+1.00    1843.3
+2026-09-25 12:01:03,256 | INFO | validate | [profile] trip_distance quantiles:
+0.00         0.00
+0.01         0.00
+0.50         1.82
+0.99        19.58
+1.00    288381.68
+2026-09-25 12:01:03,310 | INFO | validate | [profile] passenger_count quantiles:
+0.00    0.0
+0.01    1.0
+0.50    1.0
+0.99    4.0
+1.00    8.0
+2026-09-25 12:01:05,638 | INFO | validate | [profile] duplicates: 0 full-row, 18963 on (pickup, dropoff, PU, DO)
+2026-09-25 12:01:05,643 | INFO | validate | [profile] pickup range: 2008-12-31 23:03:20 .. 2026-04-01 00:06:25
+2026-09-25 12:01:05,713 | INFO | validate | [rules] invalid_duration         violations: 90,147
+2026-09-25 12:01:05,714 | INFO | validate | [rules] negative_fare            violations: 20,724
+2026-09-25 12:01:05,715 | INFO | validate | [rules] implausible_distance     violations: 161
+2026-09-25 12:01:05,716 | INFO | validate | [rules] unknown_pickup_zone      violations: 0
+2026-09-25 12:01:05,716 | INFO | validate | [rules] unknown_dropoff_zone     violations: 0
+2026-09-25 12:01:05,717 | INFO | validate | [rules] invalid_passenger_count  violations: 12,970
+2026-09-25 12:01:05,718 | INFO | validate | [rules] pickup_outside_month     violations: 4
+2026-09-25 12:01:09,451 | INFO | validate | [validate] 2026-03: 3,831,806 valid, 120,645 rejected (3.05%)
+2026-09-25 12:01:09,498 | INFO | validate | [validate] rejection reasons:
+rejection_reason
+invalid_duration           90147
+negative_fare              20724
+invalid_passenger_count    12970
+implausible_distance         161
+pickup_outside_month           4
+2026-09-25 12:01:09,498 | INFO | validate | === VALIDATE END: 2026-03 ===
+2026-09-25 12:01:10,963 | INFO | validate | [validate] wrote 2026-03_clean.parquet (3,831,806 rows) and 2026-03_rejected.csv (120,645 rows)
+2026-09-25 12:03:31,121 | INFO | validate | [profile] shape: 3,724,889 rows x 20 cols
+2026-09-25 12:03:31,122 | INFO | validate | [profile] dtypes:
+VendorID                          int32
+tpep_pickup_datetime     datetime64[us]
+tpep_dropoff_datetime    datetime64[us]
+passenger_count                 float64
+trip_distance                   float64
+RatecodeID                      float64
+store_and_fwd_flag                  str
+PULocationID                      int32
+DOLocationID                      int32
+payment_type                      int64
+fare_amount                     float64
+extra                           float64
+mta_tax                         float64
+tip_amount                      float64
+tolls_amount                    float64
+improvement_surcharge           float64
+total_amount                    float64
+congestion_surcharge            float64
+Airport_fee                     float64
+cbd_congestion_fee              float64
+2026-09-25 12:03:31,250 | INFO | validate | [profile] null counts (non-zero only):
+passenger_count         1088058
+RatecodeID              1088058
+store_and_fwd_flag      1088058
+congestion_surcharge    1088058
+Airport_fee             1088058
+2026-09-25 12:03:31,364 | INFO | validate | [profile] duration_min quantiles:
+0.00     -11.70
+0.01       0.00
+0.50      13.37
+0.99      71.43
+1.00    7507.90
+2026-09-25 12:03:31,434 | INFO | validate | [profile] fare_amount quantiles:
+0.00   -2555.2
+0.01      -3.0
+0.50      15.6
+0.99      81.4
+1.00    2555.2
+2026-09-25 12:03:31,508 | INFO | validate | [profile] trip_distance quantiles:
+0.00         0.00
+0.01         0.00
+0.50         1.81
+0.99        19.54
+1.00    269097.48
+2026-09-25 12:03:31,550 | INFO | validate | [profile] passenger_count quantiles:
+0.00    0.0
+0.01    1.0
+0.50    1.0
+0.99    4.0
+1.00    9.0
+2026-09-25 12:03:33,931 | INFO | validate | [profile] duplicates: 0 full-row, 35723 on (pickup, dropoff, PU, DO)
+2026-09-25 12:03:33,937 | INFO | validate | [profile] pickup range: 2025-12-31 23:57:29 .. 2026-02-01 00:45:01
+2026-09-25 12:04:13,401 | INFO | validate | [profile] shape: 3,724,889 rows x 20 cols
+2026-09-25 12:04:13,403 | INFO | validate | [profile] dtypes:
+VendorID                          int32
+tpep_pickup_datetime     datetime64[us]
+tpep_dropoff_datetime    datetime64[us]
+passenger_count                 float64
+trip_distance                   float64
+RatecodeID                      float64
+store_and_fwd_flag                  str
+PULocationID                      int32
+DOLocationID                      int32
+payment_type                      int64
+fare_amount                     float64
+extra                           float64
+mta_tax                         float64
+tip_amount                      float64
+tolls_amount                    float64
+improvement_surcharge           float64
+total_amount                    float64
+congestion_surcharge            float64
+Airport_fee                     float64
+cbd_congestion_fee              float64
+2026-09-25 12:04:13,510 | INFO | validate | [profile] null counts (non-zero only):
+passenger_count         1088058
+RatecodeID              1088058
+store_and_fwd_flag      1088058
+congestion_surcharge    1088058
+Airport_fee             1088058
+2026-09-25 12:04:13,619 | INFO | validate | [profile] duration_min quantiles:
+0.00     -11.70
+0.01       0.00
+0.50      13.37
+0.99      71.43
+1.00    7507.90
+2026-09-25 12:04:13,688 | INFO | validate | [profile] fare_amount quantiles:
+0.00   -2555.2
+0.01      -3.0
+0.50      15.6
+0.99      81.4
+1.00    2555.2
+2026-09-25 12:04:13,763 | INFO | validate | [profile] trip_distance quantiles:
+0.00         0.00
+0.01         0.00
+0.50         1.81
+0.99        19.54
+1.00    269097.48
+2026-09-25 12:04:13,809 | INFO | validate | [profile] passenger_count quantiles:
+0.00    0.0
+0.01    1.0
+0.50    1.0
+0.99    4.0
+1.00    9.0
+2026-09-25 12:04:16,131 | INFO | validate | [profile] duplicates: 0 full-row, 35723 on (pickup, dropoff, PU, DO)
+2026-09-25 12:04:16,138 | INFO | validate | [profile] pickup range: 2025-12-31 23:57:29 .. 2026-02-01 00:45:01
