@@ -6,6 +6,8 @@
 /data/processed
 /data/rejected
 
+# Final evidence tables are small and ARE committed (assignment deliverable)
+
 # NOTE: logs/pipeline_run.log IS tracked on purpose - the assignment's required
 # repo structure lists it as run evidence. It is appended to, never truncated.
 

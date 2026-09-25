@@ -442,3 +442,644 @@ Airport_fee             1088058
 1.00    9.0
 2026-09-25 12:04:16,131 | INFO | validate | [profile] duplicates: 0 full-row, 35723 on (pickup, dropoff, PU, DO)
 2026-09-25 12:04:16,138 | INFO | validate | [profile] pickup range: 2025-12-31 23:57:29 .. 2026-02-01 00:45:01
+2026-09-25 12:08:00,470 | INFO | model | === MODEL START: building event model from 3,590,046 clean rows ===
+2026-09-25 12:08:01,381 | WARNING | model | [model] 15,139 zone-lookup joins did not match
+2026-09-25 12:08:02,725 | WARNING | model | [model] 4 trips have no weather row for their pickup hour
+2026-09-25 12:08:02,741 | INFO | model | [model] event model built: 3,590,046 rows x 26 cols
+2026-09-25 12:08:02,789 | INFO | model | [model] median trip duration: 13.7 min | rainy share: 10.2%
+2026-09-25 12:08:02,790 | INFO | model | === MODEL END ===
+2026-09-25 12:08:04,034 | INFO | model | [model] wrote 2026-01_model.parquet (3,590,046 rows)
+2026-09-25 12:09:53,532 | INFO | model | === MODEL START: building event model from 3,590,046 clean rows ===
+2026-09-25 12:09:55,786 | WARNING | model | [model] 4 trips have no weather row for their pickup hour
+2026-09-25 12:09:55,801 | INFO | model | [model] event model built: 3,590,046 rows x 26 cols
+2026-09-25 12:09:55,857 | INFO | model | [model] median trip duration: 13.7 min | rainy share: 10.2%
+2026-09-25 12:09:55,857 | INFO | model | === MODEL END ===
+2026-09-25 12:09:57,293 | INFO | model | [model] wrote 2026-01_model.parquet (3,590,046 rows)
+2026-09-25 12:09:58,036 | INFO | metrics | === METRICS START: 2026-01 (3,590,046 trips) ===
+2026-09-25 12:09:58,856 | INFO | metrics | [metrics] benchmark tier zone_pair_hour       resolved 2,536,051 trips (1,053,995 open)
+2026-09-25 12:09:59,074 | INFO | metrics | [metrics] benchmark tier pickup_zone_hour     resolved 1,029,602 trips (24,393 open)
+2026-09-25 12:09:59,262 | INFO | metrics | [metrics] benchmark tier pickup_borough_hour  resolved 24,104 trips (289 open)
+2026-09-25 12:09:59,341 | INFO | metrics | [metrics] benchmark tier citywide_hour        resolved 289 trips (0 open)
+2026-09-25 12:09:59,507 | INFO | metrics | [metrics] delay rate: 32.77% of 3,590,046 trips exceed expected by >25%
+2026-09-25 12:09:59,570 | INFO | metrics | [metrics] benchmark level mix:
+benchmark_level
+zone_pair_hour         2536051
+pickup_zone_hour       1029602
+pickup_borough_hour      24104
+citywide_hour              289
+2026-09-25 12:10:00,542 | INFO | metrics | [metrics] metric 1: 5,814 zone-hour rows (2,040 flagged low-sample)
+2026-09-25 12:10:00,924 | INFO | metrics | [metrics] metric 2: overall unreliable rate 32.77% | worst zone-hour 100.00% (1 trips)
+2026-09-25 12:10:01,561 | INFO | metrics | [metrics] metric 3: revenue/mile by borough:
+pickup_borough   trips  revenue_per_mile
+           EWR      30             16.40
+     Manhattan 3074511             10.46
+       Unknown    4580              8.67
+      Brooklyn  153311              6.40
+ Staten Island     460              5.97
+        Queens  320937              5.82
+         Bronx   36217              4.77
+2026-09-25 12:10:03,296 | INFO | metrics | [metrics] metric 4: rainy delay rate 29.18% vs dry 33.18% (difference -4.00 pp, 4 trips excluded for no weather)
+2026-09-25 12:10:03,997 | INFO | metrics | [metrics] metric 5: zero-distance 2.73% | zero-fare 0.04% | missing passenger_count 30.22%
+2026-09-25 12:10:04,012 | INFO | metrics | [metrics] avg_duration_by_zone_hour      -> 5,814 rows
+2026-09-25 12:10:04,012 | INFO | metrics | [metrics] unreliable_trip_rate           -> 5,814 rows
+2026-09-25 12:10:04,012 | INFO | metrics | [metrics] revenue_per_mile_by_borough    -> 7 rows
+2026-09-25 12:10:04,012 | INFO | metrics | [metrics] weather_delay_rate             -> 16 rows
+2026-09-25 12:10:04,012 | INFO | metrics | [metrics] zero_trip_rate                 -> 8 rows
+2026-09-25 12:10:04,012 | INFO | metrics | === METRICS END: 2026-01 ===
+2026-09-25 12:10:04,152 | INFO | metrics | [metrics] wrote metrics_2026-01.csv
+2026-09-25 12:10:04,152 | INFO | metrics | [metrics] wrote metrics_2026-01_avg_duration_by_zone_hour.csv
+2026-09-25 12:10:04,152 | INFO | metrics | [metrics] wrote metrics_2026-01_unreliable_trip_rate.csv
+2026-09-25 12:10:04,152 | INFO | metrics | [metrics] wrote metrics_2026-01_revenue_per_mile_by_borough.csv
+2026-09-25 12:10:04,152 | INFO | metrics | [metrics] wrote metrics_2026-01_weather_delay_rate.csv
+2026-09-25 12:10:04,152 | INFO | metrics | [metrics] wrote metrics_2026-01_zero_trip_rate.csv
+2026-09-25 12:10:46,672 | INFO | pipeline | ======================================================================
+2026-09-25 12:10:46,672 | INFO | pipeline | PIPELINE START for 2026-01
+2026-09-25 12:10:46,672 | INFO | pipeline | ======================================================================
+2026-09-25 12:10:46,672 | INFO | ingest | [ingest] start for 2026-01
+2026-09-25 12:10:46,672 | INFO | ingest | Skipping download, raw file already present: yellow_tripdata_2026-01.parquet (64.2 MB)
+2026-09-25 12:10:46,787 | INFO | ingest | [completeness] yellow_tripdata_2026-01.parquet: 3,724,889 rows
+2026-09-25 12:10:46,807 | INFO | ingest | [completeness] yellow_tripdata_2026-01.parquet: pickup range 2025-12-31 23:57:29 .. 2026-02-01 00:45:01 (expected within 2026-01-01 .. 2026-01-31)
+2026-09-25 12:10:46,811 | INFO | ingest | Skipping download, raw file already present: taxi_zone_lookup.csv (0.0 MB)
+2026-09-25 12:10:46,816 | INFO | ingest | [completeness] taxi_zone_lookup.csv: 265 rows
+2026-09-25 12:10:46,817 | INFO | ingest | Skipping download, raw file already present: weather_2026-01.csv (0.0 MB)
+2026-09-25 12:10:46,818 | INFO | ingest | [completeness] weather_2026-01.csv: 744 hourly rows (expected ~744)
+2026-09-25 12:10:46,818 | INFO | ingest | [ingest] done for 2026-01: trips=yellow_tripdata_2026-01.parquet, zones=taxi_zone_lookup.csv, weather=weather_2026-01.csv
+2026-09-25 12:10:46,818 | INFO | pipeline | [pipeline] stage 1 ingest done in 0.1s
+2026-09-25 12:10:46,818 | INFO | validate | === VALIDATE START: 2026-01 ===
+2026-09-25 12:10:46,946 | INFO | validate | [profile] shape: 3,724,889 rows x 20 cols
+2026-09-25 12:10:46,947 | INFO | validate | [profile] dtypes:
+VendorID                          int32
+tpep_pickup_datetime     datetime64[us]
+tpep_dropoff_datetime    datetime64[us]
+passenger_count                 float64
+trip_distance                   float64
+RatecodeID                      float64
+store_and_fwd_flag                  str
+PULocationID                      int32
+DOLocationID                      int32
+payment_type                      int64
+fare_amount                     float64
+extra                           float64
+mta_tax                         float64
+tip_amount                      float64
+tolls_amount                    float64
+improvement_surcharge           float64
+total_amount                    float64
+congestion_surcharge            float64
+Airport_fee                     float64
+cbd_congestion_fee              float64
+2026-09-25 12:10:47,012 | INFO | validate | [profile] null counts (non-zero only):
+passenger_count         1088058
+RatecodeID              1088058
+store_and_fwd_flag      1088058
+congestion_surcharge    1088058
+Airport_fee             1088058
+2026-09-25 12:10:47,127 | INFO | validate | [profile] duration_min quantiles:
+0.00     -11.70
+0.01       0.00
+0.50      13.37
+0.99      71.43
+1.00    7507.90
+2026-09-25 12:10:47,198 | INFO | validate | [profile] fare_amount quantiles:
+0.00   -2555.2
+0.01      -3.0
+0.50      15.6
+0.99      81.4
+1.00    2555.2
+2026-09-25 12:10:47,270 | INFO | validate | [profile] trip_distance quantiles:
+0.00         0.00
+0.01         0.00
+0.50         1.81
+0.99        19.54
+1.00    269097.48
+2026-09-25 12:10:47,311 | INFO | validate | [profile] passenger_count quantiles:
+0.00    0.0
+0.01    1.0
+0.50    1.0
+0.99    4.0
+1.00    9.0
+2026-09-25 12:10:49,595 | INFO | validate | [profile] duplicates: 0 full-row, 35723 on (pickup, dropoff, PU, DO)
+2026-09-25 12:10:49,600 | INFO | validate | [profile] pickup range: 2025-12-31 23:57:29 .. 2026-02-01 00:45:01
+2026-09-25 12:10:49,675 | INFO | validate | [rules] invalid_duration         violations: 85,290
+2026-09-25 12:10:49,676 | INFO | validate | [rules] negative_fare            violations: 39,463
+2026-09-25 12:10:49,676 | INFO | validate | [rules] implausible_distance     violations: 162
+2026-09-25 12:10:49,677 | INFO | validate | [rules] unknown_pickup_zone      violations: 0
+2026-09-25 12:10:49,678 | INFO | validate | [rules] unknown_dropoff_zone     violations: 0
+2026-09-25 12:10:49,678 | INFO | validate | [rules] invalid_passenger_count  violations: 14,794
+2026-09-25 12:10:49,679 | INFO | validate | [rules] pickup_outside_month     violations: 1
+2026-09-25 12:10:53,642 | INFO | validate | [validate] 2026-01: 3,590,046 valid, 134,843 rejected (3.62%)
+2026-09-25 12:10:53,690 | INFO | validate | [validate] rejection reasons:
+rejection_reason
+invalid_duration           85290
+negative_fare              39463
+invalid_passenger_count    14794
+implausible_distance         162
+pickup_outside_month           1
+2026-09-25 12:10:53,690 | INFO | validate | === VALIDATE END: 2026-01 ===
+2026-09-25 12:10:55,305 | INFO | validate | [validate] wrote 2026-01_clean.parquet (3,590,046 rows) and 2026-01_rejected.csv (134,843 rows)
+2026-09-25 12:10:55,305 | INFO | pipeline | [pipeline] stage 2 validate done in 8.5s (3,590,046 valid, 134,843 rejected)
+2026-09-25 12:10:55,388 | INFO | model | === MODEL START: building event model from 3,590,046 clean rows ===
+2026-09-25 12:10:57,493 | WARNING | model | [model] 4 trips have no weather row for their pickup hour
+2026-09-25 12:10:57,505 | INFO | model | [model] event model built: 3,590,046 rows x 26 cols
+2026-09-25 12:10:57,547 | INFO | model | [model] median trip duration: 13.7 min | rainy share: 10.2%
+2026-09-25 12:10:57,547 | INFO | model | === MODEL END ===
+2026-09-25 12:10:59,109 | INFO | model | [model] wrote 2026-01_model.parquet (3,590,046 rows)
+2026-09-25 12:10:59,109 | INFO | pipeline | [pipeline] stage 3 model done in 3.8s (3,590,046 event rows)
+2026-09-25 12:10:59,272 | INFO | metrics | === METRICS START: 2026-01 (3,590,046 trips) ===
+2026-09-25 12:10:59,983 | INFO | metrics | [metrics] benchmark tier zone_pair_hour       resolved 2,536,051 trips (1,053,995 open)
+2026-09-25 12:11:00,209 | INFO | metrics | [metrics] benchmark tier pickup_zone_hour     resolved 1,029,602 trips (24,393 open)
+2026-09-25 12:11:00,388 | INFO | metrics | [metrics] benchmark tier pickup_borough_hour  resolved 24,104 trips (289 open)
+2026-09-25 12:11:00,464 | INFO | metrics | [metrics] benchmark tier citywide_hour        resolved 289 trips (0 open)
+2026-09-25 12:11:00,630 | INFO | metrics | [metrics] delay rate: 32.77% of 3,590,046 trips exceed expected by >25%
+2026-09-25 12:11:00,693 | INFO | metrics | [metrics] benchmark level mix:
+benchmark_level
+zone_pair_hour         2536051
+pickup_zone_hour       1029602
+pickup_borough_hour      24104
+citywide_hour              289
+2026-09-25 12:11:01,652 | INFO | metrics | [metrics] metric 1: 5,814 zone-hour rows (2,040 low-sample, sorted last)
+2026-09-25 12:11:01,652 | INFO | metrics | [metrics] metric 1 worst decision-grade cell: Central Harlem at 16:00 (51.6% delayed, 1,024 trips, avg 23.8 min vs expected 16.6 min)
+2026-09-25 12:11:02,039 | INFO | metrics | [metrics] metric 2: overall unreliable rate 32.77%
+2026-09-25 12:11:02,039 | INFO | metrics | [metrics] metric 2 interpretation: median benchmark + right-skewed durations means ~1/3 exceed 1.25x it by construction; read as a RELATIVE zone-hour ranking, not an absolute failure rate.
+2026-09-25 12:11:02,609 | INFO | metrics | [metrics] metric 3: revenue/mile by borough:
+pickup_borough   trips  revenue_per_mile
+           EWR      30             16.40
+     Manhattan 3074511             10.46
+       Unknown    4580              8.67
+      Brooklyn  153311              6.40
+ Staten Island     460              5.97
+        Queens  320937              5.82
+         Bronx   36217              4.77
+2026-09-25 12:11:04,272 | INFO | metrics | [metrics] metric 4: rainy delay rate 29.18% vs dry 33.18% (difference -4.00 pp, 4 trips excluded for no weather)
+2026-09-25 12:11:04,950 | INFO | metrics | [metrics] metric 5: zero-distance 2.73% | zero-fare 0.04% | missing passenger_count 30.22%
+2026-09-25 12:11:04,966 | INFO | metrics | [metrics] avg_duration_by_zone_hour      -> 5,814 rows
+2026-09-25 12:11:04,966 | INFO | metrics | [metrics] unreliable_trip_rate           -> 5,814 rows
+2026-09-25 12:11:04,966 | INFO | metrics | [metrics] revenue_per_mile_by_borough    -> 7 rows
+2026-09-25 12:11:04,966 | INFO | metrics | [metrics] weather_delay_rate             -> 16 rows
+2026-09-25 12:11:04,966 | INFO | metrics | [metrics] zero_trip_rate                 -> 8 rows
+2026-09-25 12:11:04,966 | INFO | metrics | === METRICS END: 2026-01 ===
+2026-09-25 12:11:05,104 | INFO | metrics | [metrics] wrote metrics_2026-01.csv
+2026-09-25 12:11:05,104 | INFO | metrics | [metrics] wrote metrics_2026-01_avg_duration_by_zone_hour.csv
+2026-09-25 12:11:05,104 | INFO | metrics | [metrics] wrote metrics_2026-01_unreliable_trip_rate.csv
+2026-09-25 12:11:05,104 | INFO | metrics | [metrics] wrote metrics_2026-01_revenue_per_mile_by_borough.csv
+2026-09-25 12:11:05,104 | INFO | metrics | [metrics] wrote metrics_2026-01_weather_delay_rate.csv
+2026-09-25 12:11:05,104 | INFO | metrics | [metrics] wrote metrics_2026-01_zero_trip_rate.csv
+2026-09-25 12:11:05,105 | INFO | pipeline | [pipeline] stage 4 metrics done in 6.0s (6 metric tables written)
+2026-09-25 12:11:05,117 | INFO | pipeline | ======================================================================
+2026-09-25 12:11:05,117 | INFO | pipeline | PIPELINE SUCCEEDED for 2026-01 in 18.4s
+2026-09-25 12:11:05,117 | INFO | pipeline |   clean:    /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/data/processed/2026-01_clean.parquet
+2026-09-25 12:11:05,117 | INFO | pipeline |   rejected: /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/data/rejected/2026-01_rejected.csv
+2026-09-25 12:11:05,117 | INFO | pipeline |   model:    /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/data/processed/2026-01_model.parquet
+2026-09-25 12:11:05,117 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-01.csv
+2026-09-25 12:11:05,117 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-01_avg_duration_by_zone_hour.csv
+2026-09-25 12:11:05,117 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-01_unreliable_trip_rate.csv
+2026-09-25 12:11:05,117 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-01_revenue_per_mile_by_borough.csv
+2026-09-25 12:11:05,117 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-01_weather_delay_rate.csv
+2026-09-25 12:11:05,118 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-01_zero_trip_rate.csv
+2026-09-25 12:11:05,118 | INFO | pipeline | ======================================================================
+2026-09-25 12:11:05,118 | INFO | pipeline | ======================================================================
+2026-09-25 12:11:05,118 | INFO | pipeline | PIPELINE START for 2026-02
+2026-09-25 12:11:05,118 | INFO | pipeline | ======================================================================
+2026-09-25 12:11:05,118 | INFO | ingest | [ingest] start for 2026-02
+2026-09-25 12:11:05,118 | INFO | ingest | Skipping download, raw file already present: yellow_tripdata_2026-02.parquet (58.7 MB)
+2026-09-25 12:11:05,176 | INFO | ingest | [completeness] yellow_tripdata_2026-02.parquet: 3,399,866 rows
+2026-09-25 12:11:05,186 | INFO | ingest | [completeness] yellow_tripdata_2026-02.parquet: pickup range 2026-01-31 23:31:23 .. 2026-03-01 00:51:48 (expected within 2026-02-01 .. 2026-02-28)
+2026-09-25 12:11:05,190 | INFO | ingest | Skipping download, raw file already present: taxi_zone_lookup.csv (0.0 MB)
+2026-09-25 12:11:05,192 | INFO | ingest | [completeness] taxi_zone_lookup.csv: 265 rows
+2026-09-25 12:11:05,192 | INFO | ingest | Skipping download, raw file already present: weather_2026-02.csv (0.0 MB)
+2026-09-25 12:11:05,193 | INFO | ingest | [completeness] weather_2026-02.csv: 672 hourly rows (expected ~672)
+2026-09-25 12:11:05,193 | INFO | ingest | [ingest] done for 2026-02: trips=yellow_tripdata_2026-02.parquet, zones=taxi_zone_lookup.csv, weather=weather_2026-02.csv
+2026-09-25 12:11:05,193 | INFO | pipeline | [pipeline] stage 1 ingest done in 0.1s
+2026-09-25 12:11:05,193 | INFO | validate | === VALIDATE START: 2026-02 ===
+2026-09-25 12:11:05,277 | INFO | validate | [profile] shape: 3,399,866 rows x 20 cols
+2026-09-25 12:11:05,277 | INFO | validate | [profile] dtypes:
+VendorID                          int32
+tpep_pickup_datetime     datetime64[us]
+tpep_dropoff_datetime    datetime64[us]
+passenger_count                 float64
+trip_distance                   float64
+RatecodeID                      float64
+store_and_fwd_flag                  str
+PULocationID                      int32
+DOLocationID                      int32
+payment_type                      int64
+fare_amount                     float64
+extra                           float64
+mta_tax                         float64
+tip_amount                      float64
+tolls_amount                    float64
+improvement_surcharge           float64
+total_amount                    float64
+congestion_surcharge            float64
+Airport_fee                     float64
+cbd_congestion_fee              float64
+2026-09-25 12:11:05,313 | INFO | validate | [profile] null counts (non-zero only):
+passenger_count         1023317
+RatecodeID              1023317
+store_and_fwd_flag      1023317
+congestion_surcharge    1023317
+Airport_fee             1023317
+2026-09-25 12:11:05,414 | INFO | validate | [profile] duration_min quantiles:
+0.00      -1.05
+0.01       0.00
+0.50      14.02
+0.99      72.52
+1.00    9265.15
+2026-09-25 12:11:05,478 | INFO | validate | [profile] fare_amount quantiles:
+0.00   -2084.1
+0.01       3.0
+0.50      16.3
+0.99      80.7
+1.00    2084.1
+2026-09-25 12:11:05,544 | INFO | validate | [profile] trip_distance quantiles:
+0.00         0.00
+0.01         0.00
+0.50         1.80
+0.99        19.41
+1.00    328522.20
+2026-09-25 12:11:05,581 | INFO | validate | [profile] passenger_count quantiles:
+0.00    0.0
+0.01    1.0
+0.50    1.0
+0.99    4.0
+1.00    9.0
+2026-09-25 12:11:07,520 | INFO | validate | [profile] duplicates: 0 full-row, 24402 on (pickup, dropoff, PU, DO)
+2026-09-25 12:11:07,524 | INFO | validate | [profile] pickup range: 2026-01-31 23:31:23 .. 2026-03-01 00:51:48
+2026-09-25 12:11:07,589 | INFO | validate | [rules] invalid_duration         violations: 74,974
+2026-09-25 12:11:07,590 | INFO | validate | [rules] negative_fare            violations: 26,721
+2026-09-25 12:11:07,591 | INFO | validate | [rules] implausible_distance     violations: 172
+2026-09-25 12:11:07,591 | INFO | validate | [rules] unknown_pickup_zone      violations: 0
+2026-09-25 12:11:07,592 | INFO | validate | [rules] unknown_dropoff_zone     violations: 0
+2026-09-25 12:11:07,592 | INFO | validate | [rules] invalid_passenger_count  violations: 12,888
+2026-09-25 12:11:07,593 | INFO | validate | [rules] pickup_outside_month     violations: 4
+2026-09-25 12:11:10,801 | INFO | validate | [validate] 2026-02: 3,288,955 valid, 110,911 rejected (3.26%)
+2026-09-25 12:11:10,836 | INFO | validate | [validate] rejection reasons:
+rejection_reason
+invalid_duration           74974
+negative_fare              26721
+invalid_passenger_count    12888
+implausible_distance         172
+pickup_outside_month           4
+2026-09-25 12:11:10,836 | INFO | validate | === VALIDATE END: 2026-02 ===
+2026-09-25 12:11:12,183 | INFO | validate | [validate] wrote 2026-02_clean.parquet (3,288,955 rows) and 2026-02_rejected.csv (110,911 rows)
+2026-09-25 12:11:12,183 | INFO | pipeline | [pipeline] stage 2 validate done in 7.0s (3,288,955 valid, 110,911 rejected)
+2026-09-25 12:11:12,260 | INFO | model | === MODEL START: building event model from 3,288,955 clean rows ===
+2026-09-25 12:11:14,092 | WARNING | model | [model] 12 trips have no weather row for their pickup hour
+2026-09-25 12:11:14,102 | INFO | model | [model] event model built: 3,288,955 rows x 26 cols
+2026-09-25 12:11:14,137 | INFO | model | [model] median trip duration: 14.3 min | rainy share: 9.0%
+2026-09-25 12:11:14,137 | INFO | model | === MODEL END ===
+2026-09-25 12:11:15,184 | INFO | model | [model] wrote 2026-02_model.parquet (3,288,955 rows)
+2026-09-25 12:11:15,184 | INFO | pipeline | [pipeline] stage 3 model done in 3.0s (3,288,955 event rows)
+2026-09-25 12:11:15,324 | INFO | metrics | === METRICS START: 2026-02 (3,288,955 trips) ===
+2026-09-25 12:11:15,924 | INFO | metrics | [metrics] benchmark tier zone_pair_hour       resolved 2,279,368 trips (1,009,587 open)
+2026-09-25 12:11:16,114 | INFO | metrics | [metrics] benchmark tier pickup_zone_hour     resolved 985,282 trips (24,305 open)
+2026-09-25 12:11:16,258 | INFO | metrics | [metrics] benchmark tier pickup_borough_hour  resolved 24,037 trips (268 open)
+2026-09-25 12:11:16,330 | INFO | metrics | [metrics] benchmark tier citywide_hour        resolved 268 trips (0 open)
+2026-09-25 12:11:16,481 | INFO | metrics | [metrics] delay rate: 33.07% of 3,288,955 trips exceed expected by >25%
+2026-09-25 12:11:16,537 | INFO | metrics | [metrics] benchmark level mix:
+benchmark_level
+zone_pair_hour         2279368
+pickup_zone_hour        985282
+pickup_borough_hour      24037
+citywide_hour              268
+2026-09-25 12:11:17,451 | INFO | metrics | [metrics] metric 1: 5,801 zone-hour rows (2,078 low-sample, sorted last)
+2026-09-25 12:11:17,452 | INFO | metrics | [metrics] metric 1 worst decision-grade cell: Central Harlem at 17:00 (50.8% delayed, 1,298 trips, avg 20.5 min vs expected 14.8 min)
+2026-09-25 12:11:17,798 | INFO | metrics | [metrics] metric 2: overall unreliable rate 33.07%
+2026-09-25 12:11:17,798 | INFO | metrics | [metrics] metric 2 interpretation: median benchmark + right-skewed durations means ~1/3 exceed 1.25x it by construction; read as a RELATIVE zone-hour ranking, not an absolute failure rate.
+2026-09-25 12:11:18,281 | INFO | metrics | [metrics] metric 3: revenue/mile by borough:
+pickup_borough   trips  revenue_per_mile
+           EWR      30             13.62
+     Manhattan 2820350             10.96
+       Unknown    3898              8.51
+      Brooklyn  147509              6.85
+ Staten Island     407              6.13
+        Queens  282427              5.94
+         Bronx   34334              5.00
+2026-09-25 12:11:19,777 | INFO | metrics | [metrics] metric 4: rainy delay rate 27.68% vs dry 33.60% (difference -5.92 pp, 12 trips excluded for no weather)
+2026-09-25 12:11:20,437 | INFO | metrics | [metrics] metric 5: zero-distance 3.02% | zero-fare 0.05% | missing passenger_count 31.03%
+2026-09-25 12:11:20,451 | INFO | metrics | [metrics] avg_duration_by_zone_hour      -> 5,801 rows
+2026-09-25 12:11:20,451 | INFO | metrics | [metrics] unreliable_trip_rate           -> 5,801 rows
+2026-09-25 12:11:20,451 | INFO | metrics | [metrics] revenue_per_mile_by_borough    -> 7 rows
+2026-09-25 12:11:20,451 | INFO | metrics | [metrics] weather_delay_rate             -> 16 rows
+2026-09-25 12:11:20,451 | INFO | metrics | [metrics] zero_trip_rate                 -> 8 rows
+2026-09-25 12:11:20,451 | INFO | metrics | === METRICS END: 2026-02 ===
+2026-09-25 12:11:20,582 | INFO | metrics | [metrics] wrote metrics_2026-02.csv
+2026-09-25 12:11:20,582 | INFO | metrics | [metrics] wrote metrics_2026-02_avg_duration_by_zone_hour.csv
+2026-09-25 12:11:20,582 | INFO | metrics | [metrics] wrote metrics_2026-02_unreliable_trip_rate.csv
+2026-09-25 12:11:20,582 | INFO | metrics | [metrics] wrote metrics_2026-02_revenue_per_mile_by_borough.csv
+2026-09-25 12:11:20,582 | INFO | metrics | [metrics] wrote metrics_2026-02_weather_delay_rate.csv
+2026-09-25 12:11:20,582 | INFO | metrics | [metrics] wrote metrics_2026-02_zero_trip_rate.csv
+2026-09-25 12:11:20,583 | INFO | pipeline | [pipeline] stage 4 metrics done in 5.4s (6 metric tables written)
+2026-09-25 12:11:20,594 | INFO | pipeline | ======================================================================
+2026-09-25 12:11:20,594 | INFO | pipeline | PIPELINE SUCCEEDED for 2026-02 in 15.5s
+2026-09-25 12:11:20,594 | INFO | pipeline |   clean:    /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/data/processed/2026-02_clean.parquet
+2026-09-25 12:11:20,594 | INFO | pipeline |   rejected: /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/data/rejected/2026-02_rejected.csv
+2026-09-25 12:11:20,594 | INFO | pipeline |   model:    /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/data/processed/2026-02_model.parquet
+2026-09-25 12:11:20,594 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-02.csv
+2026-09-25 12:11:20,594 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-02_avg_duration_by_zone_hour.csv
+2026-09-25 12:11:20,594 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-02_unreliable_trip_rate.csv
+2026-09-25 12:11:20,594 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-02_revenue_per_mile_by_borough.csv
+2026-09-25 12:11:20,594 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-02_weather_delay_rate.csv
+2026-09-25 12:11:20,594 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-02_zero_trip_rate.csv
+2026-09-25 12:11:20,594 | INFO | pipeline | ======================================================================
+2026-09-25 12:11:20,594 | INFO | pipeline | ======================================================================
+2026-09-25 12:11:20,594 | INFO | pipeline | PIPELINE START for 2026-03
+2026-09-25 12:11:20,594 | INFO | pipeline | ======================================================================
+2026-09-25 12:11:20,594 | INFO | ingest | [ingest] start for 2026-03
+2026-09-25 12:11:20,594 | INFO | ingest | Skipping download, raw file already present: yellow_tripdata_2026-03.parquet (67.9 MB)
+2026-09-25 12:11:20,660 | INFO | ingest | [completeness] yellow_tripdata_2026-03.parquet: 3,952,451 rows
+2026-09-25 12:11:20,674 | INFO | ingest | [completeness] yellow_tripdata_2026-03.parquet: pickup range 2008-12-31 23:03:20 .. 2026-04-01 00:06:25 (expected within 2026-03-01 .. 2026-03-31)
+2026-09-25 12:11:20,679 | INFO | ingest | Skipping download, raw file already present: taxi_zone_lookup.csv (0.0 MB)
+2026-09-25 12:11:20,680 | INFO | ingest | [completeness] taxi_zone_lookup.csv: 265 rows
+2026-09-25 12:11:20,680 | INFO | ingest | Skipping download, raw file already present: weather_2026-03.csv (0.0 MB)
+2026-09-25 12:11:20,681 | INFO | ingest | [completeness] weather_2026-03.csv: 744 hourly rows (expected ~744)
+2026-09-25 12:11:20,681 | INFO | ingest | [ingest] done for 2026-03: trips=yellow_tripdata_2026-03.parquet, zones=taxi_zone_lookup.csv, weather=weather_2026-03.csv
+2026-09-25 12:11:20,681 | INFO | pipeline | [pipeline] stage 1 ingest done in 0.1s
+2026-09-25 12:11:20,681 | INFO | validate | === VALIDATE START: 2026-03 ===
+2026-09-25 12:11:20,778 | INFO | validate | [profile] shape: 3,952,451 rows x 20 cols
+2026-09-25 12:11:20,778 | INFO | validate | [profile] dtypes:
+VendorID                          int32
+tpep_pickup_datetime     datetime64[us]
+tpep_dropoff_datetime    datetime64[us]
+passenger_count                 float64
+trip_distance                   float64
+RatecodeID                      float64
+store_and_fwd_flag                  str
+PULocationID                      int32
+DOLocationID                      int32
+payment_type                      int64
+fare_amount                     float64
+extra                           float64
+mta_tax                         float64
+tip_amount                      float64
+tolls_amount                    float64
+improvement_surcharge           float64
+total_amount                    float64
+congestion_surcharge            float64
+Airport_fee                     float64
+cbd_congestion_fee              float64
+2026-09-25 12:11:20,825 | INFO | validate | [profile] null counts (non-zero only):
+passenger_count         945748
+RatecodeID              945748
+store_and_fwd_flag      945748
+congestion_surcharge    945748
+Airport_fee             945748
+2026-09-25 12:11:20,932 | INFO | validate | [profile] duration_min quantiles:
+0.00    -186.67
+0.01       0.00
+0.50      13.28
+0.99      75.25
+1.00    7620.60
+2026-09-25 12:11:21,008 | INFO | validate | [profile] fare_amount quantiles:
+0.00    -990.0
+0.01       3.0
+0.50      15.6
+0.99      81.4
+1.00    1843.3
+2026-09-25 12:11:21,086 | INFO | validate | [profile] trip_distance quantiles:
+0.00         0.00
+0.01         0.00
+0.50         1.82
+0.99        19.58
+1.00    288381.68
+2026-09-25 12:11:21,132 | INFO | validate | [profile] passenger_count quantiles:
+0.00    0.0
+0.01    1.0
+0.50    1.0
+0.99    4.0
+1.00    8.0
+2026-09-25 12:11:23,434 | INFO | validate | [profile] duplicates: 0 full-row, 18963 on (pickup, dropoff, PU, DO)
+2026-09-25 12:11:23,439 | INFO | validate | [profile] pickup range: 2008-12-31 23:03:20 .. 2026-04-01 00:06:25
+2026-09-25 12:11:23,523 | INFO | validate | [rules] invalid_duration         violations: 90,147
+2026-09-25 12:11:23,524 | INFO | validate | [rules] negative_fare            violations: 20,724
+2026-09-25 12:11:23,525 | INFO | validate | [rules] implausible_distance     violations: 161
+2026-09-25 12:11:23,525 | INFO | validate | [rules] unknown_pickup_zone      violations: 0
+2026-09-25 12:11:23,526 | INFO | validate | [rules] unknown_dropoff_zone     violations: 0
+2026-09-25 12:11:23,527 | INFO | validate | [rules] invalid_passenger_count  violations: 12,970
+2026-09-25 12:11:23,527 | INFO | validate | [rules] pickup_outside_month     violations: 4
+2026-09-25 12:11:27,125 | INFO | validate | [validate] 2026-03: 3,831,806 valid, 120,645 rejected (3.05%)
+2026-09-25 12:11:27,167 | INFO | validate | [validate] rejection reasons:
+rejection_reason
+invalid_duration           90147
+negative_fare              20724
+invalid_passenger_count    12970
+implausible_distance         161
+pickup_outside_month           4
+2026-09-25 12:11:27,167 | INFO | validate | === VALIDATE END: 2026-03 ===
+2026-09-25 12:11:28,688 | INFO | validate | [validate] wrote 2026-03_clean.parquet (3,831,806 rows) and 2026-03_rejected.csv (120,645 rows)
+2026-09-25 12:11:28,688 | INFO | pipeline | [pipeline] stage 2 validate done in 8.0s (3,831,806 valid, 120,645 rejected)
+2026-09-25 12:11:28,787 | INFO | model | === MODEL START: building event model from 3,831,806 clean rows ===
+2026-09-25 12:11:30,981 | WARNING | model | [model] 14 trips have no weather row for their pickup hour
+2026-09-25 12:11:30,995 | INFO | model | [model] event model built: 3,831,806 rows x 26 cols
+2026-09-25 12:11:31,045 | INFO | model | [model] median trip duration: 13.6 min | rainy share: 16.4%
+2026-09-25 12:11:31,045 | INFO | model | === MODEL END ===
+2026-09-25 12:11:32,401 | INFO | model | [model] wrote 2026-03_model.parquet (3,831,806 rows)
+2026-09-25 12:11:32,401 | INFO | pipeline | [pipeline] stage 3 model done in 3.7s (3,831,806 event rows)
+2026-09-25 12:11:32,571 | INFO | metrics | === METRICS START: 2026-03 (3,831,806 trips) ===
+2026-09-25 12:11:33,290 | INFO | metrics | [metrics] benchmark tier zone_pair_hour       resolved 2,789,680 trips (1,042,126 open)
+2026-09-25 12:11:33,520 | INFO | metrics | [metrics] benchmark tier pickup_zone_hour     resolved 1,018,413 trips (23,713 open)
+2026-09-25 12:11:33,710 | INFO | metrics | [metrics] benchmark tier pickup_borough_hour  resolved 23,370 trips (343 open)
+2026-09-25 12:11:33,793 | INFO | metrics | [metrics] benchmark tier citywide_hour        resolved 343 trips (0 open)
+2026-09-25 12:11:33,968 | INFO | metrics | [metrics] delay rate: 31.23% of 3,831,806 trips exceed expected by >25%
+2026-09-25 12:11:34,033 | INFO | metrics | [metrics] benchmark level mix:
+benchmark_level
+zone_pair_hour         2789680
+pickup_zone_hour       1018413
+pickup_borough_hour      23370
+citywide_hour              343
+2026-09-25 12:11:35,011 | INFO | metrics | [metrics] metric 1: 5,802 zone-hour rows (2,047 low-sample, sorted last)
+2026-09-25 12:11:35,011 | INFO | metrics | [metrics] metric 1 worst decision-grade cell: South Ozone Park at 16:00 (59.3% delayed, 91 trips, avg 33.4 min vs expected 19.8 min)
+2026-09-25 12:11:35,417 | INFO | metrics | [metrics] metric 2: overall unreliable rate 31.23%
+2026-09-25 12:11:35,417 | INFO | metrics | [metrics] metric 2 interpretation: median benchmark + right-skewed durations means ~1/3 exceed 1.25x it by construction; read as a RELATIVE zone-hour ranking, not an absolute failure rate.
+2026-09-25 12:11:35,999 | INFO | metrics | [metrics] metric 3: revenue/mile by borough:
+pickup_borough   trips  revenue_per_mile
+           EWR      31             35.77
+     Manhattan 3295054             10.58
+       Unknown    4721              8.48
+      Brooklyn  157930              6.53
+        Queens  334197              5.90
+ Staten Island     437              5.82
+         Bronx   39436              4.73
+2026-09-25 12:11:37,603 | INFO | metrics | [metrics] metric 4: rainy delay rate 33.29% vs dry 30.83% (difference +2.46 pp, 14 trips excluded for no weather)
+2026-09-25 12:11:38,292 | INFO | metrics | [metrics] metric 5: zero-distance 2.40% | zero-fare 0.06% | missing passenger_count 24.61%
+2026-09-25 12:11:38,307 | INFO | metrics | [metrics] avg_duration_by_zone_hour      -> 5,802 rows
+2026-09-25 12:11:38,307 | INFO | metrics | [metrics] unreliable_trip_rate           -> 5,802 rows
+2026-09-25 12:11:38,307 | INFO | metrics | [metrics] revenue_per_mile_by_borough    -> 7 rows
+2026-09-25 12:11:38,307 | INFO | metrics | [metrics] weather_delay_rate             -> 16 rows
+2026-09-25 12:11:38,307 | INFO | metrics | [metrics] zero_trip_rate                 -> 8 rows
+2026-09-25 12:11:38,307 | INFO | metrics | === METRICS END: 2026-03 ===
+2026-09-25 12:11:38,442 | INFO | metrics | [metrics] wrote metrics_2026-03.csv
+2026-09-25 12:11:38,443 | INFO | metrics | [metrics] wrote metrics_2026-03_avg_duration_by_zone_hour.csv
+2026-09-25 12:11:38,443 | INFO | metrics | [metrics] wrote metrics_2026-03_unreliable_trip_rate.csv
+2026-09-25 12:11:38,443 | INFO | metrics | [metrics] wrote metrics_2026-03_revenue_per_mile_by_borough.csv
+2026-09-25 12:11:38,443 | INFO | metrics | [metrics] wrote metrics_2026-03_weather_delay_rate.csv
+2026-09-25 12:11:38,443 | INFO | metrics | [metrics] wrote metrics_2026-03_zero_trip_rate.csv
+2026-09-25 12:11:38,443 | INFO | pipeline | [pipeline] stage 4 metrics done in 6.0s (6 metric tables written)
+2026-09-25 12:11:38,457 | INFO | pipeline | ======================================================================
+2026-09-25 12:11:38,457 | INFO | pipeline | PIPELINE SUCCEEDED for 2026-03 in 17.9s
+2026-09-25 12:11:38,457 | INFO | pipeline |   clean:    /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/data/processed/2026-03_clean.parquet
+2026-09-25 12:11:38,457 | INFO | pipeline |   rejected: /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/data/rejected/2026-03_rejected.csv
+2026-09-25 12:11:38,457 | INFO | pipeline |   model:    /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/data/processed/2026-03_model.parquet
+2026-09-25 12:11:38,457 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-03.csv
+2026-09-25 12:11:38,457 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-03_avg_duration_by_zone_hour.csv
+2026-09-25 12:11:38,457 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-03_unreliable_trip_rate.csv
+2026-09-25 12:11:38,457 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-03_revenue_per_mile_by_borough.csv
+2026-09-25 12:11:38,457 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-03_weather_delay_rate.csv
+2026-09-25 12:11:38,457 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-03_zero_trip_rate.csv
+2026-09-25 12:11:38,457 | INFO | pipeline | ======================================================================
+2026-09-25 12:11:38,457 | INFO | pipeline | All 3 month(s) completed successfully.
+2026-09-25 12:11:50,507 | INFO | pipeline | ======================================================================
+2026-09-25 12:11:50,507 | INFO | pipeline | PIPELINE START for 2026-01
+2026-09-25 12:11:50,507 | INFO | pipeline | ======================================================================
+2026-09-25 12:11:50,507 | INFO | ingest | [ingest] start for 2026-01
+2026-09-25 12:11:50,507 | INFO | ingest | Skipping download, raw file already present: yellow_tripdata_2026-01.parquet (64.2 MB)
+2026-09-25 12:11:50,628 | INFO | ingest | [completeness] yellow_tripdata_2026-01.parquet: 3,724,889 rows
+2026-09-25 12:11:50,639 | INFO | ingest | [completeness] yellow_tripdata_2026-01.parquet: pickup range 2025-12-31 23:57:29 .. 2026-02-01 00:45:01 (expected within 2026-01-01 .. 2026-01-31)
+2026-09-25 12:11:50,643 | INFO | ingest | Skipping download, raw file already present: taxi_zone_lookup.csv (0.0 MB)
+2026-09-25 12:11:50,648 | INFO | ingest | [completeness] taxi_zone_lookup.csv: 265 rows
+2026-09-25 12:11:50,649 | INFO | ingest | Skipping download, raw file already present: weather_2026-01.csv (0.0 MB)
+2026-09-25 12:11:50,649 | INFO | ingest | [completeness] weather_2026-01.csv: 744 hourly rows (expected ~744)
+2026-09-25 12:11:50,649 | INFO | ingest | [ingest] done for 2026-01: trips=yellow_tripdata_2026-01.parquet, zones=taxi_zone_lookup.csv, weather=weather_2026-01.csv
+2026-09-25 12:11:50,650 | INFO | pipeline | [pipeline] stage 1 ingest done in 0.1s
+2026-09-25 12:11:50,650 | INFO | validate | === VALIDATE START: 2026-01 ===
+2026-09-25 12:11:50,741 | INFO | validate | [profile] shape: 3,724,889 rows x 20 cols
+2026-09-25 12:11:50,742 | INFO | validate | [profile] dtypes:
+VendorID                          int32
+tpep_pickup_datetime     datetime64[us]
+tpep_dropoff_datetime    datetime64[us]
+passenger_count                 float64
+trip_distance                   float64
+RatecodeID                      float64
+store_and_fwd_flag                  str
+PULocationID                      int32
+DOLocationID                      int32
+payment_type                      int64
+fare_amount                     float64
+extra                           float64
+mta_tax                         float64
+tip_amount                      float64
+tolls_amount                    float64
+improvement_surcharge           float64
+total_amount                    float64
+congestion_surcharge            float64
+Airport_fee                     float64
+cbd_congestion_fee              float64
+2026-09-25 12:11:50,825 | INFO | validate | [profile] null counts (non-zero only):
+passenger_count         1088058
+RatecodeID              1088058
+store_and_fwd_flag      1088058
+congestion_surcharge    1088058
+Airport_fee             1088058
+2026-09-25 12:11:50,932 | INFO | validate | [profile] duration_min quantiles:
+0.00     -11.70
+0.01       0.00
+0.50      13.37
+0.99      71.43
+1.00    7507.90
+2026-09-25 12:11:51,000 | INFO | validate | [profile] fare_amount quantiles:
+0.00   -2555.2
+0.01      -3.0
+0.50      15.6
+0.99      81.4
+1.00    2555.2
+2026-09-25 12:11:51,071 | INFO | validate | [profile] trip_distance quantiles:
+0.00         0.00
+0.01         0.00
+0.50         1.81
+0.99        19.54
+1.00    269097.48
+2026-09-25 12:11:51,112 | INFO | validate | [profile] passenger_count quantiles:
+0.00    0.0
+0.01    1.0
+0.50    1.0
+0.99    4.0
+1.00    9.0
+2026-09-25 12:11:53,359 | INFO | validate | [profile] duplicates: 0 full-row, 35723 on (pickup, dropoff, PU, DO)
+2026-09-25 12:11:53,364 | INFO | validate | [profile] pickup range: 2025-12-31 23:57:29 .. 2026-02-01 00:45:01
+2026-09-25 12:11:53,454 | INFO | validate | [rules] invalid_duration         violations: 85,290
+2026-09-25 12:11:53,455 | INFO | validate | [rules] negative_fare            violations: 39,463
+2026-09-25 12:11:53,456 | INFO | validate | [rules] implausible_distance     violations: 162
+2026-09-25 12:11:53,457 | INFO | validate | [rules] unknown_pickup_zone      violations: 0
+2026-09-25 12:11:53,458 | INFO | validate | [rules] unknown_dropoff_zone     violations: 0
+2026-09-25 12:11:53,459 | INFO | validate | [rules] invalid_passenger_count  violations: 14,794
+2026-09-25 12:11:53,460 | INFO | validate | [rules] pickup_outside_month     violations: 1
+2026-09-25 12:11:58,099 | INFO | validate | [validate] 2026-01: 3,590,046 valid, 134,843 rejected (3.62%)
+2026-09-25 12:11:58,146 | INFO | validate | [validate] rejection reasons:
+rejection_reason
+invalid_duration           85290
+negative_fare              39463
+invalid_passenger_count    14794
+implausible_distance         162
+pickup_outside_month           1
+2026-09-25 12:11:58,146 | INFO | validate | === VALIDATE END: 2026-01 ===
+2026-09-25 12:11:59,612 | INFO | validate | [validate] wrote 2026-01_clean.parquet (3,590,046 rows) and 2026-01_rejected.csv (134,843 rows)
+2026-09-25 12:11:59,612 | INFO | pipeline | [pipeline] stage 2 validate done in 9.0s (3,590,046 valid, 134,843 rejected)
+2026-09-25 12:11:59,751 | INFO | model | === MODEL START: building event model from 3,590,046 clean rows ===
+2026-09-25 12:12:01,848 | WARNING | model | [model] 4 trips have no weather row for their pickup hour
+2026-09-25 12:12:01,858 | INFO | model | [model] event model built: 3,590,046 rows x 26 cols
+2026-09-25 12:12:01,906 | INFO | model | [model] median trip duration: 13.7 min | rainy share: 10.2%
+2026-09-25 12:12:01,906 | INFO | model | === MODEL END ===
+2026-09-25 12:12:03,210 | INFO | model | [model] wrote 2026-01_model.parquet (3,590,046 rows)
+2026-09-25 12:12:03,210 | INFO | pipeline | [pipeline] stage 3 model done in 3.6s (3,590,046 event rows)
+2026-09-25 12:12:03,352 | INFO | metrics | === METRICS START: 2026-01 (3,590,046 trips) ===
+2026-09-25 12:12:04,019 | INFO | metrics | [metrics] benchmark tier zone_pair_hour       resolved 2,536,051 trips (1,053,995 open)
+2026-09-25 12:12:04,222 | INFO | metrics | [metrics] benchmark tier pickup_zone_hour     resolved 1,029,602 trips (24,393 open)
+2026-09-25 12:12:04,393 | INFO | metrics | [metrics] benchmark tier pickup_borough_hour  resolved 24,104 trips (289 open)
+2026-09-25 12:12:04,472 | INFO | metrics | [metrics] benchmark tier citywide_hour        resolved 289 trips (0 open)
+2026-09-25 12:12:04,635 | INFO | metrics | [metrics] delay rate: 32.77% of 3,590,046 trips exceed expected by >25%
+2026-09-25 12:12:04,697 | INFO | metrics | [metrics] benchmark level mix:
+benchmark_level
+zone_pair_hour         2536051
+pickup_zone_hour       1029602
+pickup_borough_hour      24104
+citywide_hour              289
+2026-09-25 12:12:05,626 | INFO | metrics | [metrics] metric 1: 5,814 zone-hour rows (2,040 low-sample, sorted last)
+2026-09-25 12:12:05,626 | INFO | metrics | [metrics] metric 1 worst decision-grade cell: Central Harlem at 16:00 (51.6% delayed, 1,024 trips, avg 23.8 min vs expected 16.6 min)
+2026-09-25 12:12:06,000 | INFO | metrics | [metrics] metric 2: overall unreliable rate 32.77%
+2026-09-25 12:12:06,001 | INFO | metrics | [metrics] metric 2 interpretation: median benchmark + right-skewed durations means ~1/3 exceed 1.25x it by construction; read as a RELATIVE zone-hour ranking, not an absolute failure rate.
+2026-09-25 12:12:06,543 | INFO | metrics | [metrics] metric 3: revenue/mile by borough:
+pickup_borough   trips  revenue_per_mile
+           EWR      30             16.40
+     Manhattan 3074511             10.46
+       Unknown    4580              8.67
+      Brooklyn  153311              6.40
+ Staten Island     460              5.97
+        Queens  320937              5.82
+         Bronx   36217              4.77
+2026-09-25 12:12:08,298 | INFO | metrics | [metrics] metric 4: rainy delay rate 29.18% vs dry 33.18% (difference -4.00 pp, 4 trips excluded for no weather)
+2026-09-25 12:12:08,945 | INFO | metrics | [metrics] metric 5: zero-distance 2.73% | zero-fare 0.04% | missing passenger_count 30.22%
+2026-09-25 12:12:08,961 | INFO | metrics | [metrics] avg_duration_by_zone_hour      -> 5,814 rows
+2026-09-25 12:12:08,961 | INFO | metrics | [metrics] unreliable_trip_rate           -> 5,814 rows
+2026-09-25 12:12:08,961 | INFO | metrics | [metrics] revenue_per_mile_by_borough    -> 7 rows
+2026-09-25 12:12:08,961 | INFO | metrics | [metrics] weather_delay_rate             -> 16 rows
+2026-09-25 12:12:08,961 | INFO | metrics | [metrics] zero_trip_rate                 -> 8 rows
+2026-09-25 12:12:08,961 | INFO | metrics | === METRICS END: 2026-01 ===
+2026-09-25 12:12:09,104 | INFO | metrics | [metrics] wrote metrics_2026-01.csv
+2026-09-25 12:12:09,104 | INFO | metrics | [metrics] wrote metrics_2026-01_avg_duration_by_zone_hour.csv
+2026-09-25 12:12:09,104 | INFO | metrics | [metrics] wrote metrics_2026-01_unreliable_trip_rate.csv
+2026-09-25 12:12:09,104 | INFO | metrics | [metrics] wrote metrics_2026-01_revenue_per_mile_by_borough.csv
+2026-09-25 12:12:09,104 | INFO | metrics | [metrics] wrote metrics_2026-01_weather_delay_rate.csv
+2026-09-25 12:12:09,104 | INFO | metrics | [metrics] wrote metrics_2026-01_zero_trip_rate.csv
+2026-09-25 12:12:09,105 | INFO | pipeline | [pipeline] stage 4 metrics done in 5.9s (6 metric tables written)
+2026-09-25 12:12:09,119 | INFO | pipeline | ======================================================================
+2026-09-25 12:12:09,119 | INFO | pipeline | PIPELINE SUCCEEDED for 2026-01 in 18.6s
+2026-09-25 12:12:09,119 | INFO | pipeline |   clean:    /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/data/processed/2026-01_clean.parquet
+2026-09-25 12:12:09,119 | INFO | pipeline |   rejected: /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/data/rejected/2026-01_rejected.csv
+2026-09-25 12:12:09,120 | INFO | pipeline |   model:    /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/data/processed/2026-01_model.parquet
+2026-09-25 12:12:09,120 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-01.csv
+2026-09-25 12:12:09,120 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-01_avg_duration_by_zone_hour.csv
+2026-09-25 12:12:09,120 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-01_unreliable_trip_rate.csv
+2026-09-25 12:12:09,120 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-01_revenue_per_mile_by_borough.csv
+2026-09-25 12:12:09,120 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-01_weather_delay_rate.csv
+2026-09-25 12:12:09,120 | INFO | pipeline |   metrics:  /Users/akshatsipany/SST/fde/nyc-tlc-assignment-2/output/metrics_2026-01_zero_trip_rate.csv
+2026-09-25 12:12:09,120 | INFO | pipeline | ======================================================================
+2026-09-25 12:12:09,120 | INFO | pipeline | All 1 month(s) completed successfully.
+2026-09-25 12:12:25,598 | INFO | pipeline | ======================================================================
+2026-09-25 12:12:25,598 | INFO | pipeline | PIPELINE START for 2026-02
+2026-09-25 12:12:25,598 | INFO | pipeline | ======================================================================
+2026-09-25 12:12:25,598 | INFO | ingest | [ingest] start for 2026-02
+2026-09-25 12:12:25,598 | INFO | ingest | Skipping download, raw file already present: yellow_tripdata_2026-02.parquet (0.0 MB)
+2026-09-25 12:12:25,660 | ERROR | pipeline | PIPELINE FAILED for 2026-02: source problem: Raw file unreadable as Parquet: yellow_tripdata_2026-02.parquet: Could not open Parquet input source '<Buffer>': Parquet magic bytes not found in footer. Either the file is corrupted or this is not a parquet file.
+2026-09-25 12:12:25,660 | ERROR | pipeline | ======================================================================
+2026-09-25 12:12:25,660 | ERROR | pipeline | PIPELINE FINISHED WITH 1 FAILED MONTH(S):
+2026-09-25 12:12:25,660 | ERROR | pipeline |   2026-02: Raw file unreadable as Parquet: yellow_tripdata_2026-02.parquet: Could not open Parquet input source '<Buffer>': Parquet magic bytes not found in footer. Either the file is corrupted or this is not a parquet file.
