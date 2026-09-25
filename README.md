@@ -35,7 +35,7 @@
 | [Metrics](#metrics) | The five operational metrics | **Class 7** |
 | [The Expected-Duration Benchmark](#the-expected-duration-benchmark) | The core judgment call, in detail | **Class 7** |
 | [Key Findings](#key-findings-janmar-2026) | What the data actually says | - |
-| [Facts / Assumptions / Bottlenecks](#facts--assumptions--bottlenecks) | Traceability of every decision | - |
+| [Facts / Unknown / Assumptions / Bottlenecks](#facts--unknown--assumptions--bottlenecks) | Known, Unknown, Assumption and Limitation | **Submission** |
 | [Demo](#demo-35-minutes) | A 3-5 minute talk track | Submission |
 | [Project Structure](#project-structure) | Every file and what it does | - |
 
@@ -633,7 +633,7 @@ change.
 
 ---
 
-## Facts / Assumptions / Bottlenecks
+## Facts / Unknown / Assumptions / Bottlenecks
 
 ### Facts (verified against the data or sources, via `ingest.py` completeness checks)
 - TLC Yellow Taxi records for Jan–Mar 2026 contain **3.4-4.0M trips per month**
@@ -648,9 +648,9 @@ change.
   dropoff_datetime minus pickup_datetime.
 - Monthly TLC files contain a small number of pickup records outside the calendar
   month (a few minutes before/after the boundary), which is normal TLC behavior.
-- The March file contains at least one implausibly old record (pickup timestamp
-  2008-12-31), a genuine upstream data error; validation must catch and reject it
-  rather than pass it through.
+- The March file contains two implausibly old records (pickup timestamps
+  2009-01-01 and 2008-12-31), genuine upstream data errors; validation catches and
+  rejects them via `pickup_outside_month` rather than passing them through.
 - **~29% of trips have a null `passenger_count`** (Jan: 1,088,058 of 3,724,889). The
   nulls are not random: they form one contiguous block at the tail of each monthly
   file, and the *exact same* rows have null `RatecodeID`, `store_and_fwd_flag`,
@@ -663,6 +663,29 @@ change.
 - After validation, 96.7-97.0% of rows survive per month (Jan: 3,590,046 valid /
   134,843 rejected; Feb: 3,288,955 / 110,911; Mar: 3,831,806 / 120,645). Clean +
   rejected reconciles exactly to the raw row count, so nothing is silently dropped.
+
+### Unknown (what these three sources cannot tell us)
+- **Why ~29% of `passenger_count` is null.** The block is clearly one partial
+  upstream feed, but nothing in the data distinguishes a vendor contract gap from a
+  TLC export bug. Settling it requires asking TLC, not querying the files.
+- **Whether rows sharing a (pickup, dropoff, zone-pair) key are distinct trips or
+  double-keyed records.** They carry different distances and fares, which is
+  consistent with distinct trips, but the source exposes no trip identifier that
+  would settle it. We therefore flag rather than deduplicate.
+- **Why two March trips are stamped 2009 and 2008** (`PULocationID` 48, one with a
+  16.9-mile distance). A keying error and a corrupted record both fit; neither row
+  carries a field that distinguishes them. Both are rejected by
+  `pickup_outside_month` and logged.
+- **What actually causes the delays.** No traffic or congestion source was in
+  scope, so "this trip ran long" is observable but its cause is not inferable from
+  these three sources. Metric 4 narrows it (weather is not the driver) without
+  identifying the real one.
+- **Whether any individual driver is affected.** The data is trip-level with no
+  driver identifier, so a pattern caused by a small set of drivers is
+  indistinguishable from a zone-wide one.
+- **Whether the 2026 files reflect a permanent schema or a temporary one.** The
+  extra fee columns present in 2026 were absent in earlier years, and nothing in
+  the files says whether they are permanent.
 
 ### Assumptions (judgment calls we made, and why)
 - **"Expected" duration is the median per zone-pair and hour-of-day.** No source
