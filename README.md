@@ -1,13 +1,58 @@
 # NYC TLC Trip Duration Reliability Pipeline
 
+> **Which zone-hours do NYC taxi trips run unreliably long, and is weather the reason?**
+> A repeatable monthly metrics pipeline over TLC Yellow Taxi records, built for fleet operations.
 
+[![Python](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
+[![pandas](https://img.shields.io/badge/pandas-3.0.3-orange.svg)](https://pandas.pydata.org/)
+![Data](https://img.shields.io/badge/data-NYC%20TLC%20Yellow%20Taxi%202026-1f4e79)
+![Metrics](https://img.shields.io/badge/metrics-5%20operational-c1672a)
+![Runtime](https://img.shields.io/badge/runtime-~18s%20per%20month-brightgreen)
+
+| | |
+|---|---|
+| **Business KPI** | Trip duration reliability |
+| **Stakeholders** | Fleet operations, TLC policy analyst |
+| **Data** | TLC Yellow Taxi Jan-Mar 2026 (3.4-4.0M trips/month) + zone lookup + Open-Meteo weather |
+| **Runtime** | ~18s per month with data cached; ~190 MB downloaded on first run |
+| **Output** | `output/metrics_<month>.csv` - 5 operational metrics |
+| **One command** | `python src/pipeline.py 2026-01 2026-02 2026-03` |
+
+---
+
+## Contents
+
+| Section | What it covers | Graded area |
+|---|---|---|
+| [Problem Statement](#problem-statement) | What fleet ops cannot see today | - |
+| [Stakeholders](#stakeholders) | Who uses the output and for what decision | - |
+| [Business KPI & Decision](#business-kpis-decision) | The KPI and the decision it supports | - |
+| [Pipeline at a Glance](#pipeline-at-a-glance) | Flow diagram of all four stages | Class 8 |
+| [Source Overview](#source-overview) | Business questions mapped to sources and gaps | **Class 4** |
+| [Data Model](#data-model) | Entity model: Trip, Zone, Weather | **Class 7** |
+| [Setup & Usage](#setup-usage) | How to run it and what it produces | - |
+| [Validation Rules](#validation-rules) | The seven business rules and their evidence | **Class 6** |
+| [Metrics](#metrics) | The five operational metrics | **Class 7** |
+| [The Expected-Duration Benchmark](#the-expected-duration-benchmark) | The core judgment call, in detail | **Class 7** |
+| [Key Findings](#key-findings-janmar-2026) | What the data actually says | - |
+| [Facts / Assumptions / Bottlenecks](#facts-assumptions-bottlenecks) | Traceability of every decision | - |
+| [Demo](#demo-35-minutes) | A 3-5 minute talk track | Submission |
+| [Project Structure](#project-structure) | Every file and what it does | - |
+
+---
 ## Problem Statement
 
 Fleet operations at NYC TLC lack visibility into where and when taxi trips take significantly longer than expected. Trip data is scattered across monthly bulk files with no linked zone context, no benchmark for "expected" duration, and no view of external factors like weather - so ops can't systematically identify which zone-hours need driver rebalancing or further investigation.
 This project builds a repeatable monthly pipeline over TLC Yellow Taxi trip records (Jan–Mar 2026) that validates the raw data, models each trip as a pickup→dropoff event with zone and weather context, and produces 3–5 operational metrics answering: which zone-hours run unreliably long, and is weather a contributing factor?
 
+**Why this is a data problem, not a code problem:** the hard part is not fetching rows or
+computing averages. It is that *no source tells you what "expected" means*, the zone dimension
+arrives as bare `LocationID` integers, and roughly 29% of the passenger data is missing
+in a way that looks random but is not. Each of those is a judgment call, and the pipeline is
+built to make them explicit and auditable rather than buried in a notebook.
 ---
 
+---
 ## Stakeholders
 
 | # | Stakeholder | Why They Matter | What I would ask them |
@@ -17,6 +62,7 @@ This project builds a repeatable monthly pipeline over TLC Yellow Taxi trip reco
 
 ---
 
+---
 ## Business KPIs & Decision
 
 **Business KPI: Trip duration reliability** - for each zone and hour of the day, how often do trips take significantly longer than expected, and by how much?
@@ -36,6 +82,70 @@ reasons, and identical output on re-runs.
 
 ---
 
+---
+## Pipeline at a Glance
+
+```mermaid
+flowchart TD
+    subgraph SRC["1. Sources - 3 systems, 2 retrieval modes"]
+        direction LR
+        S1["TLC Yellow Taxi Trips<br/>Jan-Mar 2026<br/>~3.4-4.0M trips / month<br/><i>grain: 1 row = 1 trip</i>"]
+        S2["TLC Taxi Zone Lookup<br/>265 LocationIDs<br/><i>grain: 1 row = 1 zone</i>"]
+        S3["Open-Meteo Weather API<br/>hourly precip + temp<br/>no API key<br/><i>grain: 1 row = 1 hour</i>"]
+    end
+
+    ING["<b>ingest.py</b><br/>idempotent fetch<br/>completeness checks:<br/>row count, date span, columns"]
+    RAW[("data/raw/<br/><b>READ-ONLY after fetch</b>")]
+
+    VAL["<b>validate.py</b><br/>profile() + 7 named rules<br/>every failure keeps its reason"]
+    CLEAN[("data/processed/<br/>96.7-97.0% of rows")]
+    REJ[("data/rejected/<br/>3.0-3.6% of rows<br/>+ rejection_reason")]
+
+    MOD["<b>model.py</b><br/>Trip event: pickup to dropoff<br/>joins Zone on LocationID<br/>joins Weather on local pickup hour"]
+    MODEL[("<month>_model.parquet<br/><i>1 row = 1 trip</i>")]
+
+    MET["<b>metrics.py</b><br/>expected = MEDIAN duration<br/>per zone-pair x hour<br/>sparse cells fall back<br/>unreliable = duration > 1.25 x expected"]
+
+    M1["1. Avg duration<br/>by zone x hour"]
+    M2["<b>2. % over expected by >25%</b><br/><i>the KPI</i>"]
+    M3["3. Revenue per mile<br/>by borough"]
+    M4["4. Weather delay rate<br/>rainy vs dry"]
+    M5["5. Zero-distance / zero-fare<br/><i>data quality</i>"]
+
+    OUT[("output/metrics_<month>.csv<br/><b>final evidence table</b>")]
+    LOG[("logs/pipeline_run.log")]
+
+    S1 --> ING
+    S2 --> ING
+    S3 --> ING
+    ING --> RAW --> VAL
+    VAL --> CLEAN --> MOD --> MODEL --> MET
+    VAL --> REJ
+    MET --> M1 & M2 & M3 & M4 & M5
+    M1 & M2 & M3 & M4 & M5 --> OUT
+
+    ING -.-> LOG
+    VAL -.-> LOG
+    MOD -.-> LOG
+    MET -.-> LOG
+
+    classDef source fill:#dce9f7,stroke:#4a7ebb,color:#1a3a5c
+    classDef stage fill:#e2efd9,stroke:#6aa84f,color:#274e13
+    classDef data fill:#f2f2f2,stroke:#999999,color:#333333
+    classDef kpi fill:#f3eaf9,stroke:#6b3fa0,color:#3d2060,stroke-width:2px
+    class S1,S2,S3 source
+    class ING,VAL,MOD,MET stage
+    class RAW,CLEAN,REJ,MODEL,OUT,LOG data
+    class M2 kpi
+```
+
+**A note on the branch at `validate.py`.** Rejected rows are not discarded. They are written to `data/rejected/` with a `rejection_reason` column, and `len(clean) + len(rejected) == len(raw)` holds exactly for every month. That reconciliation is asserted in the notebook, because "we dropped some bad rows" and "we lost some rows without noticing" look identical in a log file.
+
+The same source file is also available as a rendered diagram: [`diagrams/workflow_model.png`](diagrams/workflow_model.png) (editable source: `workflow_model.dot`).
+
+---
+
+---
 ## Source Overview
 
 | # | Business Question | Data Needed | Owning Source | Source System / Access | Grain | Known Gaps & Limitations |
@@ -46,6 +156,7 @@ reasons, and identical output on re-runs.
 
 ---
 
+---
 ## Scope
 
 **In scope:** Yellow Taxi trip records only, January-March 2026 (3 months - enough to
@@ -56,6 +167,51 @@ different schemas and are not needed for this KPI.
 
 ---
 
+---
+## Data Model
+
+A flat event table, one row per completed trip. The assignment explicitly allows
+this, and at 3.4-4.0M rows per month a warehouse would add cost without changing
+the answer.
+
+**Entities**
+
+| Entity | Grain | Source | Key |
+|---|---|---|---|
+| **Trip** (the event) | 1 row = 1 completed pickup → dropoff | TLC Yellow Taxi parquet | none (row identity) |
+| **Zone** (dimension) | 1 row = 1 taxi zone | TLC Taxi Zone Lookup | `LocationID` (1-265) |
+| **Weather** (context) | 1 row = 1 hour, city-wide | Open-Meteo archive API | local hour timestamp |
+
+**Joins**
+
+- `Trip.PULocationID` and `Trip.DOLocationID` → `Zone.LocationID` (many-to-one).
+  Profiling found **zero** unmatched IDs, so the join is complete; `validate.py`
+  keeps the rule as a guard against a future schema change.
+- `Trip` pickup hour → `Weather` hour, after flooring the pickup timestamp to the
+  hour. **Both sides are local New York time**, so this is a direct lookup with no
+  timezone conversion. (An earlier draft fetched weather in UTC against local TLC
+  timestamps, which was a systematic 4-5 hour misalignment; see
+  [Assumptions](#assumptions-judgment-calls-we-made-and-why).)
+- Trips whose pickup hour has no weather row are **flagged, not dropped**
+  (4 trips in Jan 2026). They are excluded from metric 4 only, since they cannot
+  be classified as rainy or dry.
+
+**Derived fields**
+
+| Field | Derivation | Used by |
+|---|---|---|
+| `trip_duration_min` | dropoff − pickup, in minutes | metrics 1-4, benchmark |
+| `pickup_hour` | hour of day (0-23) of the local pickup | metrics 1, 2, 4, benchmark |
+| `zone_pair` | `"PU->DO"`, **directional** | benchmark (JFK→Manhattan ≠ Manhattan→JFK) |
+| `pickup_borough` | joined from Zone | metrics 3, 4, fallbacks |
+| `is_rainy` | `precipitation_mm > 0` at the pickup hour | metric 4 |
+| `expected_duration_min` | median benchmark with fallback chain | metrics 2, 4 |
+| `exceeds_expected` | `trip_duration_min > 1.25 × expected_duration_min` | metrics 2, 4 (one shared flag) |
+| `benchmark_level` | which tier the benchmark came from | auditability |
+
+---
+
+---
 ## Setup & Usage
 
 **Requirements:** Python 3.12 with `pandas`, `pyarrow` and `requests`
@@ -116,6 +272,41 @@ profiling evidence behind every validation rule and judgment call.
 | Runtime | 18.4s (Jan), 15.5s (Feb), 17.9s (Mar) with data already local |
 ---
 
+---
+## Validation Rules
+
+Seven named rules, each a single constant or mask in `src/validate.py`, each
+justified by evidence reproduced in `notebooks/exploration.ipynb`. Every rejected
+row is written to `data/rejected/<month>_rejected.csv` with **all** the reasons it
+failed, semicolon-joined. Nothing is silently fixed or dropped.
+
+| Rule | Threshold | Jan 2026 violations | Basis |
+|---|---|---|---|
+| `invalid_duration` | 1 min ≤ duration ≤ 240 min | 85,290 | Assignment says `> 0`; tightened to 1 min because 45,069 rows have pickup == dropoff *while reporting non-zero distance* |
+| `negative_fare` | `fare_amount >= 0` | 39,463 | Assignment rule; negatives are refunds and disputes |
+| `implausible_distance` | `trip_distance <= 100 mi` | 162 | 162-172 rows/month, max in the hundreds of thousands of miles; would wreck revenue-per-mile |
+| `unknown_pickup_zone` | ID present in the lookup | 0 | Assignment rule, retained as a guard |
+| `unknown_dropoff_zone` | ID present in the lookup | 0 | Assignment rule, retained as a guard |
+| `invalid_passenger_count` | 1-6, **only when populated** | 14,794 | ~29% of rows are null (a partial upstream feed); a populated 0 or 7-9 is still rejected |
+| `pickup_outside_month` | month ± 1 day | 1 | Boundary spillover is real TLC behavior; a 2008 timestamp is not |
+
+**Deliberately not rejected**
+
+| Rows | Why kept |
+|---|---|
+| Zero-fare trips (~2,100/month) | They are the subject of metric 5 |
+| Zero-distance trips (~125,700/month) | Same: metric 5 exists to measure them |
+| Null `passenger_count` (~1,088,000/month) | Missing metadata, not a bad trip. No metric uses the field |
+| Duplicate-key rows (~35,700/month) | Shared (pickup, dropoff, zone-pair) keys carry *different* fares and distances, i.e. genuinely distinct trips. Flagged as `is_duplicate_key` instead |
+
+**Reconciliation:** `len(clean) + len(rejected) == len(raw)` holds exactly for
+every month (Jan 3,590,046 + 134,843 = 3,724,889). This is asserted in the
+notebook, because "we rejected some bad rows" and "we lost some rows without
+noticing" look identical in a log file.
+
+---
+
+---
 ## Metrics
 
 Five operational metrics, all computed per month by the pipeline:
@@ -167,6 +358,78 @@ All metric definitions and thresholds are implemented in `src/metrics.py`.
 
 ---
 
+---
+## The Expected-Duration Benchmark
+
+This is the judgment call the whole KPI rests on, so it gets its own section.
+
+**No source provides ground-truth expected trip duration.** It has to be derived,
+and the choice changes the answer:
+
+```
+expected_duration = MEDIAN trip duration for that zone-pair and hour-of-day
+unreliable        = trip_duration > 1.25 x expected_duration
+```
+
+**Why the median, not the mean.** The mean is inflated by exactly the long trips
+this metric is trying to detect. The median is robust to them.
+
+**Why a fallback chain is necessary.** The zone-pair × hour grid is extremely
+sparse. Profiling 2026-01:
+
+| Cell size (zone-pair × hour) | Share of cells | Trips covered |
+|---|---|---|
+| fewer than 5 trips | 70.5% | 9.7% |
+| fewer than 10 trips | 81.5% | 15.6% |
+| fewer than 30 trips | 91.2% | 29.4% |
+| **median cell holds** | **2 trips** | |
+
+A median built from 2 trips is noise. So cells with fewer than `MIN_CELL_TRIPS`
+(= 30) fall back through progressively coarser tiers:
+
+```
+zone-pair x hour  ->  pickup-zone x hour  ->  pickup-borough x hour
+                  ->  citywide x hour     ->  citywide (all hours)
+```
+
+**Where the trips actually land** (Jan 2026):
+
+| Benchmark tier | Share of trips |
+|---|---|
+| zone-pair × hour (most specific) | 70.6% |
+| pickup-zone × hour | 28.7% |
+| pickup-borough × hour | 0.7% |
+| citywide × hour | 0.01% |
+| **zone-or-better (combined)** | **99.3%** |
+
+Every trip records which tier produced its benchmark in `benchmark_level`, so
+the fallback is auditable rather than invisible. A stakeholder can filter to
+`benchmark_level == "zone_pair_hour"` and see only the strongest claims.
+
+**The uncomfortable part, stated plainly.** The headline delay rate is **32.77%**,
+and that number is **mostly arithmetic, not a finding**. Because the benchmark is
+a *median* and trip durations are right-skewed, roughly a third of trips exceed
+1.25× the median *by construction* (verified: 37.1% of trips exceed 1.25× the
+citywide median). The absolute rate therefore carries little information.
+
+The metric earns its keep as a **relative ranking between zone-hours**, not as an
+absolute share of bad trips. Read it as *"Central Harlem at 16:00 and 17:00 tops
+the list in both January and February"*, never as *"a third of trips are broken."*
+This is why `metrics.py` sorts decision-grade cells (≥30 trips) to the top: sorting
+on delay rate alone surfaces 1-trip cells that are trivially 0% or 100%.
+
+**Two further limits of this approach**, both recorded in
+[Bottlenecks](#bottlenecks-limitations-what-this-analysis-cannot-do):
+
+1. The benchmark is **self-referential** in small cells: a trip contributes to the
+   median it must beat, raising its own bar.
+2. A **uniform** slowdown in a zone is invisible, because the median moves with it.
+   That is why metric 1 (raw averages) ships alongside metric 2 rather than
+   instead of it.
+
+---
+
+---
 ## Key Findings (Jan–Mar 2026)
 
 Produced by `output/metrics_<month>.csv`. Every figure below is reproducible with
@@ -209,6 +472,7 @@ to attribute unreliability to weather.
 zero-fare, 30.22% missing `passenger_count` (the partial-feed block). The
 first two are the subject of the metric; the third is the caveat on everything else.
 
+---
 ## Demo (3–5 minutes)
 
 The talk track below centres on **one FDE judgment call** (marked ★), because the
@@ -277,6 +541,7 @@ and the judgment calls are written down in the README, the code comments, and th
 notebook, so a reviewer can disagree with any of them and see exactly what would
 change.
 
+---
 ## Facts / Assumptions / Bottlenecks
 
 ### Facts (verified against the data or sources, via `ingest.py` completeness checks)
@@ -377,3 +642,44 @@ change.
   averages are the only view that would surface this, which is why metric 1 is
   reported alongside metric 2 rather than instead of it.
 
+---
+## Project Structure
+
+```
+nyc-tlc-fde/
+├── README.md                     this document
+├── requirements.txt              pandas, pyarrow, requests
+├── data/
+│   ├── raw/                      untouched downloads, READ-ONLY after ingest (git-ignored)
+│   │   ├── yellow_tripdata_<month>.parquet
+│   │   ├── weather_<month>.csv
+│   │   └── taxi_zone_lookup.csv
+│   ├── processed/                git-ignored, regenerated by validate.py / model.py
+│   │   ├── <month>_clean.parquet
+│   │   └── <month>_model.parquet
+│   └── rejected/                 git-ignored, <month>_rejected.csv + rejection_reason
+├── src/
+│   ├── ingest.py                 Stage 1: idempotent fetch + completeness checks
+│   ├── validate.py               Stage 2: profile() + 7 business rules, clean/rejected split
+│   ├── model.py                  Stage 3: trip/zone/weather event model
+│   ├── metrics.py                Stage 4: expected-duration benchmark + 5 metrics
+│   └── pipeline.py               Stage 5: orchestrator, logging, failure handling
+├── notebooks/
+│   └── exploration.ipynb         executed EDA documenting every rule and judgment call
+├── diagrams/
+│   ├── workflow_model.png        rendered source map + data model
+│   ├── workflow_model.svg        scalable version
+│   └── workflow_model.dot        editable Graphviz source
+├── output/                       committed: the final evidence tables
+│   ├── metrics_<month>.csv       all 5 metrics combined
+│   └── metrics_<month>_<metric>.csv
+└── logs/
+    └── pipeline_run.log          committed run evidence: timings, counts, errors
+```
+
+**Stage boundaries are real.** `model.py` recomputes `trip_duration_min` rather
+than reading it from `validate.py`, and `metrics.py` attaches the benchmark once
+so metrics 2 and 4 read the same `exceeds_expected` flag and cannot disagree.
+Each stage can be run and inspected on its own, and the notebook imports
+`validate.profile` so the notebook and the pipeline can never disagree about what
+"profiled" means.
