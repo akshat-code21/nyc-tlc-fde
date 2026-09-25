@@ -22,22 +22,22 @@
 
 ## Contents
 
-| Section | What it covers | Graded area |
-|---|---|---|
-| [Problem Statement](#problem-statement) | What fleet ops cannot see today | - |
-| [Stakeholders](#stakeholders) | Who uses the output and for what decision | - |
-| [Business KPI & Decision](#business-kpis--decision) | The KPI and the decision it supports | - |
-| [Pipeline at a Glance](#pipeline-at-a-glance) | Flow diagram of all four stages | Class 8 |
-| [Source Overview](#source-overview) | Business questions mapped to sources and gaps | **Class 4** |
-| [Data Model](#data-model) | Entity model: Trip, Zone, Weather | **Class 7** |
-| [Setup & Usage](#setup--usage) | How to run it and what it produces | - |
-| [Validation Rules](#validation-rules) | The seven business rules and their evidence | **Class 6** |
-| [Metrics](#metrics) | The five operational metrics | **Class 7** |
-| [The Expected-Duration Benchmark](#the-expected-duration-benchmark) | The core judgment call, in detail | **Class 7** |
-| [Key Findings](#key-findings-janmar-2026) | What the data actually says | - |
-| [Facts / Unknown / Assumptions / Bottlenecks](#facts--unknown--assumptions--bottlenecks) | Known, Unknown, Assumption and Limitation | **Submission** |
-| [Demo](#demo-35-minutes) | A 3-5 minute talk track | Submission |
-| [Project Structure](#project-structure) | Every file and what it does | - |
+| Section | What it covers |
+|---|---|
+| [Problem Statement](#problem-statement) | What fleet ops cannot see today |
+| [Stakeholders](#stakeholders) | Who uses the output and for what decision |
+| [Business KPI & Decision](#business-kpis--decision) | The KPI and the decision it supports |
+| [Pipeline at a Glance](#pipeline-at-a-glance) | Flow diagram of all four stages |
+| [Source Overview](#source-overview) | Business questions mapped to sources and gaps |
+| [Data Model](#data-model) | Entity model: Trip, Zone, Weather |
+| [Setup & Usage](#setup--usage) | How to run it and what it produces |
+| [Validation Rules](#validation-rules) | The seven business rules and their evidence |
+| [Metrics](#metrics) | The five operational metrics |
+| [The Expected-Duration Benchmark](#the-expected-duration-benchmark) | The core judgment call, in detail |
+| [Key Findings](#key-findings-janmar-2026) | What the data actually says |
+| [Facts / Unknown / Assumptions / Bottlenecks](#facts--unknown--assumptions--bottlenecks) | Known, Unknown, Assumption and Limitation |
+| [Demo](#demo-35-minutes) | A 3-5 minute talk track ([full script](DEMO_SCRIPT.md)) |
+| [Project Structure](#project-structure) | Every file and what it does |
 
 ---
 
@@ -565,71 +565,8 @@ first two are the subject of the metric; the third is the caveat on everything e
 
 ## Demo (3–5 minutes)
 
-The talk track below centres on **one FDE judgment call** (marked ★), because the
-brief asks for one important judgment to be explained rather than a full tour.
-
-**0:00: The question (20s).** Fleet ops can't see *where* or *when* taxi trips run
-significantly longer than expected. No source provides "expected" duration, no
-traffic data exists, and the zone information is a bare LocationID. The job was to
-turn three fragmented sources into one monthly table that answers it.
-
-**0:20: Run it live (60s).** In the repo root:
-
-```bash
-python src/pipeline.py 2026-01 2026-02 2026-03
-```
-
-Point out as it runs: it fetches ~190 MB on a cold start, takes ~18s per month when
-the data is local, and logs every stage. Show that re-running is safe, and mention
-the corrupt-file test (halt with a named error, exit 1, no partial output).
-
-**1:20: Walk the pipeline (40s).** Three sources, two retrieval modes → `ingest.py`
-(idempotent, with completeness checks) → `validate.py` (7 named rules, every
-rejected row keeps its reason) → `model.py` (one row per trip, joined to zone and
-weather) → `metrics.py` (five metrics). Refer to `diagrams/workflow_model.png`.
-
-**★ 2:00: The judgment call: what counts as "expected"? (90s).**
-
-*No source supplies expected trip duration, so I had to derive it, and the choice
-changes the answer.* I use the **median duration for that zone-pair and hour**.
-
-- **Why median, not mean:** the mean gets pulled up by exactly the long trips I'm
-  trying to detect. The median is robust to them.
-- **Why the fallback chain exists:** I profiled the grid first. 70.5% of the
-  ~299,000 zone-pair × hour cells hold fewer than 5 trips, and the median cell holds
-  2. A median built from 2 trips is noise. So cells under 30 trips fall back:
-  zone-pair → zone → borough → citywide. Every trip records which tier it used, so
-  you can audit it. 70.6% of trips get a zone-pair benchmark; 99.3% get zone-or-better.
-- **The uncomfortable part:** the headline delay rate is 32.77%, and that number is
-  **mostly arithmetic, not a finding**. With a median benchmark and right-skewed
-  durations, about a third of trips exceed 1.25× the median by construction: I
-  checked, 37.1% exceed 1.25× the citywide median. So I've documented metric 2 as a
-  **relative ranking between zone-hours**, not an absolute share of bad trips. The
-  useful output is *"Central Harlem at 16:00 and 17:00 tops the list in both January
-  and February"*: not *"a third of trips are broken."*
-
-**3:30: The finding (40s).** The worst decision-grade zone-hours are stable across
-all three months: Central Harlem 16:00–17:00 and East Harlem South in Jan/Feb,
-South Ozone Park and Jackson Heights in Mar. And metric 4 is a useful *negative*
-result: rainy hours are delayed **less** often than dry hours (-4.0pp), so weather
-doesn't explain the unreliability. That redirects the investigation to operations
-rather than weather.
-
-**4:10: Limits I know about (30s).** Say these out loud; naming them is the point.
-- The benchmark is self-referential: a trip in a small cell helps set the median it
-  must beat.
-- A *uniform* slowdown in a zone is invisible to metric 2, because the median moves
-  with it. That's why metric 1's averages ship alongside it.
-- Revenue-per-mile looks wide, but EWR's $16.40/mi rests on **30 trips**, and the
-  ordering mostly tracks trip length. It's a mix effect, not mispricing.
-- ~29% of rows have a missing `passenger_count` (a partial upstream feed). No metric
-  uses that field, so I kept those trips and flagged them, rather than discarding a
-  million real rows a month over a field we never read.
-
-**4:40: Close (20s).** One command reproduces every number above from raw inputs,
-and the judgment calls are written down in the README, the code comments, and the
-notebook, so a reviewer can disagree with any of them and see exactly what would
-change.
+The demo talk track lives in [`DEMO_SCRIPT.md`](DEMO_SCRIPT.md). It centres on one
+FDE judgment call — how "expected" trip duration is derived — as the brief requires.
 
 ---
 
@@ -781,6 +718,7 @@ nyc-tlc-fde/
 │   └── pipeline.py               Stage 5: orchestrator, logging, failure handling
 ├── notebooks/
 │   └── exploration.ipynb         executed EDA documenting every rule and judgment call
+├── DEMO_SCRIPT.md                3–5 minute demo talk track and likely questions
 ├── diagrams/
 │   ├── workflow_model.png        rendered source map + data model
 │   ├── workflow_model.svg        scalable version
