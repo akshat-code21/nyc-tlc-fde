@@ -34,7 +34,7 @@
 | [Validation Rules](#validation-rules) | The seven business rules and their evidence |
 | [Metrics](#metrics) | The five operational metrics |
 | [The Expected-Duration Benchmark](#the-expected-duration-benchmark) | The core judgment call, in detail |
-| [Key Findings](#key-findings-janmar-2026) | What the data actually says |
+| [Key Findings](#key-findings-jan-mar-2026) | What the data says ([full write-up](KEY_FINDINGS.md)) |
 | [Facts / Unknown / Assumptions / Bottlenecks](#facts--unknown--assumptions--bottlenecks) | Known, Unknown, Assumption and Limitation |
 | [Demo](#demo-35-minutes) | A 3-5 minute talk track ([full script](DEMO_SCRIPT.md)) |
 | [Project Structure](#project-structure) | Every file and what it does |
@@ -154,11 +154,11 @@ The same source file is also available as a rendered diagram: [`diagrams/workflo
 
 ```mermaid
 flowchart LR
-    subgraph API["Mode 1 — API, no key"]
+    subgraph API["Mode 1: API, no key"]
         OM["Open-Meteo archive API<br/>hourly=temperature_2m,precipitation<br/>timezone=America/New_York<br/>slow: needs a 300s timeout"]
     end
 
-    subgraph BULK["Mode 2 — Bulk file download"]
+    subgraph BULK["Mode 2: Bulk file download"]
         PQ["yellow_tripdata_2026-MM.parquet<br/>× 3 months<br/><i>~60 MB each</i>"]
         ZL["taxi_zone_lookup.csv<br/><i>12 KB, static snapshot</i>"]
     end
@@ -519,54 +519,20 @@ on delay rate alone surfaces 1-trip cells that are trivially 0% or 100%.
 
 ---
 
-## Key Findings (Jan–Mar 2026)
+## Key Findings (Jan-Mar 2026)
 
-Produced by `output/metrics_<month>.csv`. Every figure below is reproducible with
-`python src/pipeline.py 2026-01 2026-02 2026-03`.
-
-**Metric 1 + 2: where and when trips overrun their benchmark**
-
-The worst *decision-grade* zone-hours (cells with at least 30 trips) are stable
-across all three months, which is what makes them worth acting on:
-
-| Month | Worst zone-hour | Trips | Delay rate | Avg vs expected |
-|---|---|---|---|---|
-| 2026-01 | Central Harlem, 16:00 | 1,024 | 51.6% | 23.8 min vs 16.6 min |
-| 2026-02 | Central Harlem, 17:00 | 1,298 | 50.8% | 20.5 min vs 14.8 min |
-| 2026-03 | South Ozone Park, 16:00 | 91 | 59.3% | 33.4 min vs 19.8 min |
-
-Outer-borough zones (South Ozone Park, Jackson Heights) and Harlem zones during
-the afternoon/evening peak dominate the tail. Read these as a **relative
-ranking**: see the interpretation note under Bottlenecks.
-
-**Metric 3: revenue per mile by borough** (Jan 2026): the spread is wide, not narrow:
-EWR $16.40/mi, Manhattan $10.46, Brooklyn $6.40, Staten Island $5.97, Queens $5.82,
-Bronx $4.77. Two caveats matter before anyone acts on this. EWR's figure rests on
-**30 trips** (vs 3.07M for Manhattan), so it is not comparable; and the ordering
-tracks trip length almost perfectly: Manhattan averages 14.8 min, the Bronx
-36.7 min, so this is a **mix effect** (short airport runs earn high revenue per
-mile), not evidence that any borough is mispriced. The output includes a `trips`
-column precisely so this kind of small-denominator trap is visible.
-
-**Metric 4: weather-adjusted delay rate** (Jan 2026): rainy hours 29.2% delayed
-(365,565 trips) vs dry hours 33.2% (3,224,477 trips), a **-4.0pp** difference in
-the *opposite* direction to the naive expectation. Rain does not explain delays
-here; the delay problem is operational, not weather-driven. Caveat worth stating:
-rainy hours also average colder (1.4C vs -2.6C) and shorter trips (16.0 vs
-17.4 min), so this is an association across different trip mixes, not a controlled
-comparison. It is still a useful negative result: it tells the policy analyst not
-to attribute unreliability to weather.
-
-**Metric 5: data quality** (Jan 2026): 2.73% zero-distance trips, 0.04%
-zero-fare, 30.22% missing `passenger_count` (the partial-feed block). The
-first two are the subject of the metric; the third is the caveat on everything else.
+The findings, with the caveats that stop each number being over-read, live in
+[`KEY_FINDINGS.md`](KEY_FINDINGS.md). In short: the worst zone-hours are stable
+across January and February but shift in March, revenue per mile reflects trip
+mix rather than pricing, and the weather signal is **not consistent** (it
+reverses sign in March), so rain is not a reliable explanation for the delays.
 
 ---
 
 ## Demo (3–5 minutes)
 
 The demo talk track lives in [`DEMO_SCRIPT.md`](DEMO_SCRIPT.md). It centres on one
-FDE judgment call — how "expected" trip duration is derived — as the brief requires.
+FDE judgment call: how "expected" trip duration is derived: as the brief requires.
 
 ---
 
@@ -615,8 +581,9 @@ FDE judgment call — how "expected" trip duration is derived — as the brief r
   `pickup_outside_month` and logged.
 - **What actually causes the delays.** No traffic or congestion source was in
   scope, so "this trip ran long" is observable but its cause is not inferable from
-  these three sources. Metric 4 narrows it (weather is not the driver) without
-  identifying the real one.
+  these three sources. Metric 4 rules rain out as a *sufficient* explanation, since
+  the rainy-vs-dry difference is not even consistent in sign across the three
+  months, but it cannot identify the real driver.
 - **Whether any individual driver is affected.** The data is trip-level with no
   driver identifier, so a pattern caused by a small set of drivers is
   indistinguishable from a zone-wide one.
@@ -636,6 +603,12 @@ FDE judgment call — how "expected" trip duration is derived — as the brief r
   have no usable benchmark.
 - **"Rainy" means hourly precipitation > 0 at pickup.** Binary rather than
   intensity-based: simple and defensible; can be refined later.
+- **Metric 4's rainy/dry split is not a controlled comparison.** Rainy hours also
+  differ in temperature, trip length and time-of-day mix, so the gap between them
+  confounds rain with those factors. This is not hypothetical: the gap changes
+  sign across the three months (-4.0pp Jan, -5.9pp Feb, **+2.5pp Mar**), which is
+  the strongest evidence that the binary split is too blunt. Treat metric 4 as
+  ruling rain *out* as a sufficient explanation, not as measuring its effect size.
 - **A missing `passenger_count` does not invalidate a trip; a populated value outside
   1–6 does.** The assignment's example rule reads "passenger count between 1 and 6",
   but applying it literally would reject the ~29% null block described above and
@@ -719,6 +692,7 @@ nyc-tlc-fde/
 ├── notebooks/
 │   └── exploration.ipynb         executed EDA documenting every rule and judgment call
 ├── DEMO_SCRIPT.md                3–5 minute demo talk track and likely questions
+├── KEY_FINDINGS.md               what the metrics actually say, with their caveats
 ├── diagrams/
 │   ├── workflow_model.png        rendered source map + data model
 │   ├── workflow_model.svg        scalable version

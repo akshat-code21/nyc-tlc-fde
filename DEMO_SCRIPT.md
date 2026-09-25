@@ -10,14 +10,14 @@ beforehand so you can talk over cached results if the network is slow.
 
 ---
 
-## 0:00 — The question (20s)
+## 0:00: The question (20s)
 
 Fleet ops can't see *where* or *when* taxi trips run significantly longer than
 expected. No source provides "expected" duration, no traffic data exists, and the
 zone information is a bare LocationID. The job was to turn three fragmented
 sources into one monthly table that answers it.
 
-## 0:20 — Run it live (60s)
+## 0:20: Run it live (60s)
 
 In the repo root:
 
@@ -33,18 +33,18 @@ Point out as it runs:
   and exit code 1, rather than writing bad output. (Demonstrated by replacing a
   raw parquet with a corrupt file.)
 
-## 1:20 — Walk the pipeline (40s)
+## 1:20: Walk the pipeline (40s)
 
 Three sources, two retrieval modes (bulk file download + REST API):
 
-`ingest.py` — idempotent fetch, with completeness checks on row count, date span
-and required columns → `validate.py` — profiling plus 7 named business rules,
-where every rejected row keeps its reason → `model.py` — one row per trip,
-joined to zone and hourly weather → `metrics.py` — five metrics.
+`ingest.py`: idempotent fetch, with completeness checks on row count, date span
+and required columns → `validate.py`: profiling plus 7 named business rules,
+where every rejected row keeps its reason → `model.py`: one row per trip,
+joined to zone and hourly weather → `metrics.py`: five metrics.
 
 Point at the diagram: `diagrams/workflow_model.png`.
 
-## ★ 2:00 — The judgment call: what counts as "expected"? (90s)
+## ★ 2:00: The judgment call: what counts as "expected"? (90s)
 
 *No source supplies expected trip duration, so I had to derive it, and the choice
 changes the answer.* I use the **median duration for that zone-pair and hour**.
@@ -66,24 +66,26 @@ benchmark; 99.3% get zone-or-better.
 
 **The uncomfortable part:** the headline delay rate is 32.77%, and that number is
 **mostly arithmetic, not a finding**. With a median benchmark and right-skewed
-durations, about a third of trips exceed 1.25× the median *by construction* — I
+durations, about a third of trips exceed 1.25× the median *by construction*: I
 checked: 37.1% exceed 1.25× the citywide median. So I've documented metric 2 as
 a **relative ranking between zone-hours**, not an absolute share of bad trips.
 
 The useful output is *"Central Harlem at 16:00 and 17:00 tops the list in both
-January and February"* — not *"a third of trips are broken."*
+January and February"*: not *"a third of trips are broken."*
 
-## 3:30 — The finding (40s)
+## 3:30: The finding (40s)
 
 The worst decision-grade zone-hours (cells with at least 30 trips) are stable
 across all three months: Central Harlem 16:00–17:00 and East Harlem South in
 Jan/Feb, South Ozone Park and Jackson Heights in Mar.
 
-Metric 4 is a useful **negative** result: rainy hours are delayed *less* often
-than dry hours (−4.0pp), so weather does not explain the unreliability. That
-redirects the investigation to operations rather than weather.
+Metric 4 is a **negative** result: weather does not explain the unreliability. The
+rainy-vs-dry gap is -4.0pp in January, -5.9pp in February, but **+2.5pp in March**
+- the sign flips, so rain is not a sufficient explanation and the investigation
+points at operations. (Worth saying out loud: my first draft reported only
+January and called it settled. Checking all three months is what caught it.)
 
-## 4:10 — Limits I know about (30s)
+## 4:10: Limits I know about (30s)
 
 Say these out loud; naming them is the point.
 
@@ -97,7 +99,7 @@ Say these out loud; naming them is the point.
   metric uses that field, so I kept those trips and flagged them, rather than
   discarding a million real rows a month over a field we never read.
 
-## 4:40 — Close (20s)
+## 4:40: Close (20s)
 
 One command reproduces every number above from raw inputs. The judgment calls are
 written down in the README, the code comments and the notebook, so a reviewer can
