@@ -26,20 +26,21 @@
 |---|---|---|
 | [Problem Statement](#problem-statement) | What fleet ops cannot see today | - |
 | [Stakeholders](#stakeholders) | Who uses the output and for what decision | - |
-| [Business KPI & Decision](#business-kpis-decision) | The KPI and the decision it supports | - |
+| [Business KPI & Decision](#business-kpis--decision) | The KPI and the decision it supports | - |
 | [Pipeline at a Glance](#pipeline-at-a-glance) | Flow diagram of all four stages | Class 8 |
 | [Source Overview](#source-overview) | Business questions mapped to sources and gaps | **Class 4** |
 | [Data Model](#data-model) | Entity model: Trip, Zone, Weather | **Class 7** |
-| [Setup & Usage](#setup-usage) | How to run it and what it produces | - |
+| [Setup & Usage](#setup--usage) | How to run it and what it produces | - |
 | [Validation Rules](#validation-rules) | The seven business rules and their evidence | **Class 6** |
 | [Metrics](#metrics) | The five operational metrics | **Class 7** |
 | [The Expected-Duration Benchmark](#the-expected-duration-benchmark) | The core judgment call, in detail | **Class 7** |
 | [Key Findings](#key-findings-janmar-2026) | What the data actually says | - |
-| [Facts / Assumptions / Bottlenecks](#facts-assumptions-bottlenecks) | Traceability of every decision | - |
+| [Facts / Assumptions / Bottlenecks](#facts--assumptions--bottlenecks) | Traceability of every decision | - |
 | [Demo](#demo-35-minutes) | A 3-5 minute talk track | Submission |
 | [Project Structure](#project-structure) | Every file and what it does | - |
 
 ---
+
 ## Problem Statement
 
 Fleet operations at NYC TLC lack visibility into where and when taxi trips take significantly longer than expected. Trip data is scattered across monthly bulk files with no linked zone context, no benchmark for "expected" duration, and no view of external factors like weather - so ops can't systematically identify which zone-hours need driver rebalancing or further investigation.
@@ -52,7 +53,6 @@ in a way that looks random but is not. Each of those is a judgment call, and the
 built to make them explicit and auditable rather than buried in a notebook.
 ---
 
----
 ## Stakeholders
 
 | # | Stakeholder | Why They Matter | What I would ask them |
@@ -62,7 +62,6 @@ built to make them explicit and auditable rather than buried in a notebook.
 
 ---
 
----
 ## Business KPIs & Decision
 
 **Business KPI: Trip duration reliability** - for each zone and hour of the day, how often do trips take significantly longer than expected, and by how much?
@@ -79,10 +78,8 @@ the median duration for that zone-pair and hour-of-day (a judgment call, see Ass
 full metric table from raw sources - validated inputs, rejected rows accounted for with
 reasons, and identical output on re-runs.
 
-
 ---
 
----
 ## Pipeline at a Glance
 
 ```mermaid
@@ -145,7 +142,6 @@ The same source file is also available as a rendered diagram: [`diagrams/workflo
 
 ---
 
----
 ## Source Overview
 
 | # | Business Question | Data Needed | Owning Source | Source System / Access | Grain | Known Gaps & Limitations |
@@ -154,9 +150,43 @@ The same source file is also available as a rendered diagram: [`diagrams/workflo
 | 2 | How does weather (rain/temperature) relate to trip delays? | Hourly precipitation and temperature for NYC | Open-Meteo | Historical Weather API - REST, no key required (`https://open-meteo.com/en/docs/historical-weather-api`) | 1 row = 1 hour, city-wide | City-wide aggregate, not route-specific - a trip from JFK to Manhattan experiences different conditions than "NYC average" implies; cannot capture localized events (e.g., a storm hitting only one borough) |
 | 3 | Which boroughs/zones are affected (for rebalancing decisions)? | LocationID → Borough / Zone / service zone mapping | NYC TLC | Taxi Zone Lookup Table - CSV file linked from the same TLC page | 1 row = 1 LocationID (265 zones) | Lookup is static (snapshot at download time). Profiling found **zero** trip records with a LocationID missing from the lookup, so the join is currently complete; the rule is retained as a guard against future schema changes. Note that LocationID 264 is literally named "Unknown", so some trips map to a zone with no meaningful borough |
 
----
+### Retrieval: two modes behind one interface
+
+```mermaid
+flowchart LR
+    subgraph API["Mode 1 — API, no key"]
+        OM["Open-Meteo archive API<br/>hourly=temperature_2m,precipitation<br/>timezone=America/New_York<br/>slow: needs a 300s timeout"]
+    end
+
+    subgraph BULK["Mode 2 — Bulk file download"]
+        PQ["yellow_tripdata_2026-MM.parquet<br/>× 3 months<br/><i>~60 MB each</i>"]
+        ZL["taxi_zone_lookup.csv<br/><i>12 KB, static snapshot</i>"]
+    end
+
+    F["fetch_all(month)<br/><b>one interface, either mode</b><br/>idempotent · atomic write<br/>completeness-checked"]
+    RAW[("data/raw/")]
+
+    OM --> F
+    PQ --> F
+    ZL --> F
+    F --> RAW
+
+    classDef api fill:#fff2cc,stroke:#d6a700,color:#5c4500
+    classDef bulk fill:#dce9f7,stroke:#4a7ebb,color:#1a3a5c
+    classDef iface fill:#e2efd9,stroke:#6aa84f,color:#274e13
+    classDef out fill:#f2f2f2,stroke:#999999,color:#333333
+    class OM api
+    class PQ,ZL bulk
+    class F iface
+    class RAW out
+```
+
+Both modes funnel through the same `fetch_all(month) -> dict[str, Path]`, so the rest of the pipeline never knows or cares which source came from where. Each fetch skips what already exists, writes atomically via a `.part` file, and runs a completeness check that is logged on every run.
+
+> **One retrieval bug worth mentioning in the demo.** The first weather implementation requested `timezone=UTC` while TLC timestamps are recorded in local New York time, and justified it as "a one-hour offset, immaterial". It was wrong twice over: the offset is 4-5 hours, and it would have systematically attributed rain to the wrong trips. It was caught before any metric was computed, and all three weather files were re-fetched.
 
 ---
+
 ## Scope
 
 **In scope:** Yellow Taxi trip records only, January-March 2026 (3 months - enough to
@@ -167,12 +197,50 @@ different schemas and are not needed for this KPI.
 
 ---
 
----
 ## Data Model
 
 A flat event table, one row per completed trip. The assignment explicitly allows
 this, and at 3.4-4.0M rows per month a warehouse would add cost without changing
 the answer.
+
+```mermaid
+erDiagram
+    ZONE ||--o{ TRIP_EVENT : "pickup_location"
+    ZONE ||--o{ TRIP_EVENT : "dropoff_location"
+    WEATHER_HOUR ||--o{ TRIP_EVENT : "conditions_at_pickup"
+
+    TRIP_EVENT {
+        int64 tpep_pickup_datetime "event start, local NY"
+        int64 tpep_dropoff_datetime "event end, local NY"
+        float trip_duration_min "DERIVED dropoff minus pickup"
+        int32 PULocationID "FK to ZONE"
+        int32 DOLocationID "FK to ZONE"
+        string zone_pair "DERIVED PU to DO, directional"
+        int16 pickup_hour "DERIVED 0-23, the KPI axis"
+        float trip_distance "miles"
+        float fare_amount "USD"
+        float total_amount "fare plus fees plus tip"
+        bool passenger_count_missing "quality flag"
+        bool is_duplicate_key "quality flag"
+        float expected_duration_min "DERIVED in metrics.py"
+        string benchmark_level "which fallback tier was used"
+        float precipitation_mm "from WEATHER_HOUR"
+        bool is_rainy "DERIVED precipitation above 0"
+        bool exceeds_expected "DERIVED duration over 1.25x expected"
+    }
+
+    ZONE {
+        int64 LocationID "PK, 1-265"
+        string Borough "blank for IDs 264 and 265"
+        string Zone "blank for IDs 264 and 265"
+    }
+
+    WEATHER_HOUR {
+        datetime time "PK, local NY hour"
+        float temperature_2m "degrees C"
+        float precipitation "mm"
+    }
+```
 
 **Entities**
 
@@ -211,7 +279,6 @@ the answer.
 
 ---
 
----
 ## Setup & Usage
 
 **Requirements:** Python 3.12 with `pandas`, `pyarrow` and `requests`
@@ -272,7 +339,6 @@ profiling evidence behind every validation rule and judgment call.
 | Runtime | 18.4s (Jan), 15.5s (Feb), 17.9s (Mar) with data already local |
 ---
 
----
 ## Validation Rules
 
 Seven named rules, each a single constant or mask in `src/validate.py`, each
@@ -306,7 +372,6 @@ noticing" look identical in a log file.
 
 ---
 
----
 ## Metrics
 
 Five operational metrics, all computed per month by the pipeline:
@@ -358,7 +423,6 @@ All metric definitions and thresholds are implemented in `src/metrics.py`.
 
 ---
 
----
 ## The Expected-Duration Benchmark
 
 This is the judgment call the whole KPI rests on, so it gets its own section.
@@ -387,10 +451,36 @@ sparse. Profiling 2026-01:
 A median built from 2 trips is noise. So cells with fewer than `MIN_CELL_TRIPS`
 (= 30) fall back through progressively coarser tiers:
 
+```mermaid
+flowchart TD
+    T["A trip: JFK → Manhattan<br/>17:00, took 42 minutes"] --> Q1{"Trips in this<br/>zone-pair × hour?"}
+    Q1 -->|"≥ 30"| ZP["<b>Tier 1</b> zone-pair × hour<br/>70.64% of trips<br/>median 24 min"]
+    Q1 -->|"< 30"| Q2{"Trips in this<br/>pickup-zone × hour?"}
+    Q2 -->|"≥ 30"| Z["<b>Tier 2</b> zone × hour<br/>28.68% of trips<br/>median 19 min"]
+    Q2 -->|"< 30"| Q3{"borough × hour?"}
+    Q3 -->|"≥ 30"| B["<b>Tier 3</b> borough × hour<br/>0.67%"]
+    Q3 -->|"< 30"| C["<b>Tier 4</b> citywide × hour<br/>0.01%"]
+    C --> D["<b>Tier 5</b> citywide, all hours"]
+    ZP --> TH{"duration ><br/>1.25 × expected?"}
+    Z --> TH
+    B --> TH
+    D --> TH
+    TH -->|"42 > 30.0"| FLAG["UNRELIABLE<br/>logged with its benchmark_level"]
+    TH -->|"No"| OK["within normal range"]
+
+    classDef data fill:#dce9f7,stroke:#4a7ebb,color:#1a3a5c
+    classDef q fill:#fff2cc,stroke:#d6a700,color:#5c4500
+    classDef flag fill:#f8d7da,stroke:#c0504d,color:#5c1a18
+    classDef good fill:#e2efd9,stroke:#6aa84f,color:#274e13
+    class T,ZP,Z,B,C,D data
+    class Q1,Q2,Q3,TH q
+    class FLAG flag
+    class OK good
 ```
-zone-pair x hour  ->  pickup-zone x hour  ->  pickup-borough x hour
-                  ->  citywide x hour     ->  citywide (all hours)
-```
+
+Every trip records which tier produced its benchmark in `benchmark_level`, so the
+fallback is auditable rather than invisible. In practice 70.6% of trips get a
+zone-pair benchmark and 99.3% get zone-or-better.
 
 **Where the trips actually land** (Jan 2026):
 
@@ -419,7 +509,7 @@ This is why `metrics.py` sorts decision-grade cells (≥30 trips) to the top: so
 on delay rate alone surfaces 1-trip cells that are trivially 0% or 100%.
 
 **Two further limits of this approach**, both recorded in
-[Bottlenecks](#bottlenecks-limitations-what-this-analysis-cannot-do):
+[Bottlenecks](#bottlenecks--limitations-what-this-analysis-cannot-do):
 
 1. The benchmark is **self-referential** in small cells: a trip contributes to the
    median it must beat, raising its own bar.
@@ -429,7 +519,6 @@ on delay rate alone surfaces 1-trip cells that are trivially 0% or 100%.
 
 ---
 
----
 ## Key Findings (Jan–Mar 2026)
 
 Produced by `output/metrics_<month>.csv`. Every figure below is reproducible with
@@ -473,6 +562,7 @@ zero-fare, 30.22% missing `passenger_count` (the partial-feed block). The
 first two are the subject of the metric; the third is the caveat on everything else.
 
 ---
+
 ## Demo (3–5 minutes)
 
 The talk track below centres on **one FDE judgment call** (marked ★), because the
@@ -542,6 +632,7 @@ notebook, so a reviewer can disagree with any of them and see exactly what would
 change.
 
 ---
+
 ## Facts / Assumptions / Bottlenecks
 
 ### Facts (verified against the data or sources, via `ingest.py` completeness checks)
@@ -610,9 +701,13 @@ change.
   `is_duplicate_key` flag surfaces them in the data-quality view instead.
 
 ### Bottlenecks / Limitations (what this analysis cannot do)
-- **No ground truth for "expected":** our benchmark is derived from the same data it
-  judges, so a systemic slowdown (e.g., all of Midtown slower in March) shifts the
-  baseline and becomes invisible to metric 2.
+- **No ground truth for "expected":** the benchmark is derived from the same data it
+  judges, so it can only ever rank zones against *each other*, never against an
+  absolute standard of "acceptable".
+- **A systemic slowdown is therefore invisible to metric 2.** If every trip in a zone
+  gets 30% slower, the median moves with it and the delay rate stays flat. Metric 1's
+  averages are the only view that surfaces this, which is why metric 1 is reported
+  alongside metric 2 rather than instead of it.
 - **No traffic or congestion data:** we can flag that trips are slow, but not why
   (congestion, construction, closures). Weather is our only external explanatory factor.
 - **Weather is city-wide, not route-specific:** a JFK→Manhattan trip in a localized
@@ -637,12 +732,9 @@ change.
   to the median it is compared against, so its own duration raises the bar it must
   clear. This is why cells under 30 trips fall back to coarser tiers, and why
   `benchmark_sample_size` is retained on every trip.
-- **A systemic slowdown is invisible to metric 2.** If every trip in a zone gets
-  30% slower, the median moves with it and the delay rate stays flat. Metric 1's
-  averages are the only view that would surface this, which is why metric 1 is
-  reported alongside metric 2 rather than instead of it.
 
 ---
+
 ## Project Structure
 
 ```
