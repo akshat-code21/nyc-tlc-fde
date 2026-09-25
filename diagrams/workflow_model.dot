@@ -1,0 +1,99 @@
+/*
+ * NYC TLC Trip Duration Reliability Pipeline
+ * Source map + workflow / data model  (Class 4 "Understand sources" +
+ * Class 7 "Model workflow & metrics" deliverable).
+ *
+ * Render:  dot -Tpng workflow_model.dot -o workflow_model.png
+ *          dot -Tsvg workflow_model.dot -o workflow_model.svg
+ */
+digraph pipeline {
+  rankdir=TB;
+  nodesep=0.30;
+  ranksep=0.45;
+  fontname="Helvetica";
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11,
+        penwidth=1.2, margin="0.18,0.10", color="#666666"];
+  edge [fontname="Helvetica", fontsize=9, color="#666666", penwidth=1.1,
+        arrowsize=0.8];
+
+  labelloc="t";
+  label=<<B>NYC TLC Trip Duration Reliability Pipeline</B><BR/><FONT POINT-SIZE="10">3 sources &#8594; ingest &#8594; validate &#8594; model &#8594; 5 metrics</FONT>>;
+  fontsize=16;
+
+  // ================= 1. SOURCES =================
+  subgraph cluster_sources {
+    label=<<B>1. SOURCES</B> &#183; 3 systems &#183; 2 retrieval modes (bulk file + API)>;
+    fontsize=11; fontcolor="#333333"; style="rounded,filled";
+    fillcolor="#FBFCFD"; color="#BBBBBB";
+
+    tlc [shape=note, fillcolor="#DCE9F7", color="#4A7EBB",
+         label=<<B>TLC Yellow Taxi Trips</B><BR/><FONT POINT-SIZE="9">Jan / Feb / Mar 2026<BR/>~3.4-4.0M trips per month<BR/><I>grain: 1 row = 1 completed trip</I></FONT>>];
+    zone [shape=note, fillcolor="#DCE9F7", color="#4A7EBB",
+          label=<<B>TLC Taxi Zone Lookup</B><BR/><FONT POINT-SIZE="9">265 LocationIDs, static snapshot<BR/><I>grain: 1 row = 1 zone</I></FONT>>];
+    wx [shape=note, fillcolor="#DCE9F7", color="#4A7EBB",
+        label=<<B>Open-Meteo Weather API</B><BR/><FONT POINT-SIZE="9">hourly precipitation + temperature<BR/>no API key &#183; local NY time<BR/><I>grain: 1 row = 1 hour</I></FONT>>];
+  }
+
+  // ================= 2. INGEST =================
+  ingest [fillcolor="#DCE9F7", color="#4A7EBB",
+          label=<<B>ingest.py</B><BR/><FONT POINT-SIZE="9">idempotent fetch (skips what exists)<BR/>completeness checks: row count,<BR/>date span, required columns</FONT>>];
+  raw [fillcolor="#FFF2CC", color="#D6A700",
+       label=<<B>data/raw/</B> &#8212; READ-ONLY after fetch<BR/><FONT POINT-SIZE="9">yellow_tripdata_&lt;month&gt;.parquet &#183; weather_&lt;month&gt;.csv &#183; taxi_zone_lookup.csv</FONT>>];
+
+  // ================= 3. VALIDATE =================
+  val [fillcolor="#FCE4D6", color="#E0703A",
+       label=<<B>validate.py</B><BR/><FONT POINT-SIZE="9">profile() + 7 named business rules<BR/>every failed row keeps its reason(s)<BR/>nothing is silently fixed or dropped</FONT>>];
+  clean [fillcolor="#E2EFD9", color="#6AA84F",
+         label=<<B>data/processed/&lt;month&gt;_clean.parquet</B><BR/><FONT POINT-SIZE="9">96.7-97.0% of rows<BR/>+ quality flags (missing passenger_count,<BR/>duplicate key)</FONT>>];
+  rej [fillcolor="#F8D7DA", color="#C0504D",
+       label=<<B>data/rejected/&lt;month&gt;_rejected.csv</B><BR/><FONT POINT-SIZE="9">3.0-3.6% of rows<BR/>+ rejection_reason (semicolon-joined)</FONT>>];
+
+  // ================= 4. MODEL =================
+  mdl [fillcolor="#E2EFD9", color="#6AA84F",
+       label=<<B>model.py</B> &#8212; the event model<BR/><FONT POINT-SIZE="9">Trip event: one row per pickup &#8594; dropoff<BR/>joins Zone on PULocationID / DOLocationID<BR/>joins Weather on the LOCAL pickup hour<BR/>derives trip_duration_min, zone_pair (directional), is_rainy</FONT>>];
+  model [fillcolor="#F1F1F1", color="#999999",
+         label=<<B>&lt;month&gt;_model.parquet</B><BR/><FONT POINT-SIZE="9">flat event table &#183; 1 row = 1 trip &#183; 26 columns</FONT>>];
+
+  // ================= 5. METRICS =================
+  met [fillcolor="#EDE3F2", color="#8E6BB5",
+       label=<<B>metrics.py</B><BR/><FONT POINT-SIZE="9">expected duration = MEDIAN per zone-pair &#215; hour<BR/>sparse cells fall back: zone &#8594; borough &#8594; citywide<BR/>unreliable = duration &gt; 1.25 &#215; expected<BR/>(one shared flag, so metrics 2 and 4 cannot disagree)</FONT>>];
+
+  m1 [fillcolor="#FFFFFF", color="#8E6BB5", label=<<B>1. Avg trip duration</B> by zone &#215; hour>];
+  m2 [fillcolor="#F3EAF9", color="#6B3FA0", label=<<B>2. % of trips over expected by &gt;25%</B> &#160;<I>(the KPI)</I>>];
+  m3 [fillcolor="#FFFFFF", color="#8E6BB5", label=<<B>3. Revenue per mile</B> by borough>];
+  m4 [fillcolor="#FFFFFF", color="#8E6BB5", label=<<B>4. Weather-adjusted delay rate</B> rainy vs dry>];
+  m5 [fillcolor="#FFFFFF", color="#8E6BB5", label=<<B>5. Zero-distance / zero-fare rate</B> &#160;<I>(data quality)</I>>];
+  { rank=same; m1; m3; m4; m5; }
+
+  out [fillcolor="#F1F1F1", color="#999999",
+       label=<<B>output/metrics_&lt;month&gt;.csv</B><BR/><FONT POINT-SIZE="9">final evidence table (all 5 metrics)<BR/>+ one CSV per metric</FONT>>];
+  log [shape=note, fillcolor="#F2F2F2", color="#999999", fontcolor="#555555",
+       label=<<B>logs/pipeline_run.log</B><BR/><FONT POINT-SIZE="9">stage start/end, row counts in/out,<BR/>rule violations, errors</FONT>>];
+
+  // ================= ANNOTATIONS =================
+  note [shape=note, fillcolor="#FFF9E6", color="#D6A700",
+        label=<<B>Judgment calls</B> (see README Assumptions)<BR/><FONT POINT-SIZE="9">missing passenger_count &#8800; invalid trip<BR/>MIN_DURATION_MIN = 1 minute<BR/>weather joined on the LOCAL hour<BR/>zero-distance / zero-fare rows are KEPT &#8212;<BR/>they are the evidence for metric 5<BR/>metric 2 is a RELATIVE ranking, not<BR/>an absolute share of bad trips</FONT>>];
+  recon [shape=note, fillcolor="#F1F8F1", color="#6AA84F",
+         label=<<B>Reconciled exactly:</B><BR/><FONT POINT-SIZE="9">len(clean) + len(rejected) = len(raw)<BR/>asserted for every month</FONT>>];
+
+  // ================= FLOW =================
+  tlc -> ingest;  zone -> ingest;  wx -> ingest;
+  ingest -> raw;
+  raw -> val;
+  val -> clean;
+  val -> rej;
+  clean -> mdl;
+  mdl -> model;
+  model -> met;
+  met -> m2;
+  m2 -> m1;  m2 -> m3;  m2 -> m4;  m2 -> m5;
+  m1 -> out;  m3 -> out;  m4 -> out;  m5 -> out;
+  met -> note [style=dashed, arrowhead=none, color="#BBBBBB"];
+  rej -> recon [style=dashed, arrowhead=none, color="#BBBBBB"];
+
+  // Every stage writes to the run log.
+  ingest -> log [style=dotted, color="#BBBBBB", arrowhead=none];
+  val    -> log [style=dotted, color="#BBBBBB", arrowhead=none];
+  mdl    -> log [style=dotted, color="#BBBBBB", arrowhead=none];
+  met    -> log [style=dotted, color="#BBBBBB", arrowhead=none];
+}
