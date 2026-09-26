@@ -1,113 +1,96 @@
-# Demo Script (3–5 minutes)
+# Demo Script
 
-Talk track for the NYC TLC Trip Duration Reliability Pipeline. The brief asks for a
-demo that explains **one important FDE judgment call**, so this centres on that
-(marked ★) rather than touring every file.
+Read only the text inside quotation marks aloud, exactly as written.
+[BRACKETS] are your screen directions: do not say them.
 
-**Before you start:** clone the repo, `pip install -r requirements.txt`, and have
-the README open at the Pipeline at a Glance diagram. Run the pipeline once
-beforehand so you can talk over cached results if the network is slow.
+## Before you press record
 
----
-
-## 0:00: The question (20s)
-
-Fleet ops can't see *where* or *when* taxi trips run significantly longer than
-expected. No source provides "expected" duration, no traffic data exists, and the
-zone information is a bare LocationID. The job was to turn three fragmented
-sources into one monthly table that answers it.
-
-## 0:20: Run it live (60s)
-
-In the repo root:
-
-```bash
-python src/pipeline.py 2026-01 2026-02 2026-03
-```
-
-Point out as it runs:
-- Fetches ~190 MB on a cold start; ~18s per month once the data is local.
-- Logs every stage to console and `logs/pipeline_run.log`.
-- Re-running is safe, because every write overwrites.
-- If a source is missing or corrupt it halts with a named `SourceMissingError`
-  and exit code 1, rather than writing bad output. (Demonstrated by replacing a
-  raw parquet with a corrupt file.)
-
-## 1:20: Walk the pipeline (40s)
-
-Three sources, two retrieval modes (bulk file download + REST API):
-
-`ingest.py`: idempotent fetch, with completeness checks on row count, date span
-and required columns → `validate.py`: profiling plus 7 named business rules,
-where every rejected row keeps its reason → `model.py`: one row per trip,
-joined to zone and hourly weather → `metrics.py`: five metrics.
-
-Point at the diagram: `diagrams/workflow_model.png`.
-
-## ★ 2:00: The judgment call: what counts as "expected"? (90s)
-
-*No source supplies expected trip duration, so I had to derive it, and the choice
-changes the answer.* I use the **median duration for that zone-pair and hour**.
-
-**Why median, not mean:** the mean gets pulled up by exactly the long trips I'm
-trying to detect. The median is robust to them.
-
-**Why the fallback chain exists:** I profiled the grid first. 70.5% of the
-~299,000 zone-pair × hour cells hold fewer than 5 trips, and the median cell holds
-2. A median built from 2 trips is noise. So cells under 30 trips fall back:
-
-```
-zone-pair × hour  →  pickup-zone × hour  →  borough × hour  →  citywide
-```
-
-Every trip records which tier produced its benchmark (`benchmark_level`), so the
-fallback is auditable rather than invisible. 70.6% of trips get a zone-pair
-benchmark; 99.3% get zone-or-better.
-
-**The uncomfortable part:** the headline delay rate is 32.77%, and that number is
-**mostly arithmetic, not a finding**. With a median benchmark and right-skewed
-durations, about a third of trips exceed 1.25× the median *by construction*: I
-checked: 37.1% exceed 1.25× the citywide median. So I've documented metric 2 as
-a **relative ranking between zone-hours**, not an absolute share of bad trips.
-
-The useful output is *"Central Harlem at 16:00 and 17:00 tops the list in both
-January and February"*: not *"a third of trips are broken."*
-
-## 3:30: The finding (40s)
-
-The worst decision-grade zone-hours (cells with at least 30 trips) are stable
-across all three months: Central Harlem 16:00–17:00 and East Harlem South in
-Jan/Feb, South Ozone Park and Jackson Heights in Mar.
-
-Metric 4 is a **negative** result: weather does not explain the unreliability. The
-rainy-vs-dry gap is -4.0pp in January, -5.9pp in February, but **+2.5pp in March**
-- the sign flips, so rain is not a sufficient explanation and the investigation
-points at operations. (Worth saying out loud: my first draft reported only
-January and called it settled. Checking all three months is what caught it.)
-
-## 4:10: Limits I know about (30s)
-
-Say these out loud; naming them is the point.
-
-- The benchmark is **self-referential**: a trip in a small cell helps set the
-  median it must beat.
-- A *uniform* slowdown in a zone is **invisible to metric 2**, because the median
-  moves with it. That's why metric 1's averages ship alongside it.
-- Revenue-per-mile looks wide, but EWR's $16.40/mi rests on **30 trips**, and the
-  ordering mostly tracks trip length. It's a mix effect, not mispricing.
-- ~29% of rows have a missing `passenger_count` (a partial upstream feed). No
-  metric uses that field, so I kept those trips and flagged them, rather than
-  discarding a million real rows a month over a field we never read.
-
-## 4:40: Close (20s)
-
-One command reproduces every number above from raw inputs. The judgment calls are
-written down in the README, the code comments and the notebook, so a reviewer can
-disagree with any of them and see exactly what would change.
+1. Repo cloned, `pip install -r requirements.txt` done.
+2. Run `python src/pipeline.py 2026-01 2026-02 2026-03` once beforehand, so all
+data is cached and there is no network wait on camera. The recording then
+shows a real end-to-end run, not a replay.
+3. Have three things open: **(a)** a terminal in the repo root, **(b)** the
+GitHub repo page, **(c)** `diagrams/workflow_model.png`.
+4. Recording tips: do it in one take. If you flub a line, pause three seconds,
+then restart the sentence — that silence is easy to cut. Keep the terminal
+font large enough to read at 1080p.
 
 ---
 
-## Likely questions
+## [0:00] Cold open — SCREEN: GitHub repo front page
+
+> "Fleet operations at New York's taxi regulator has a question it can't answer:
+> which zones, at which hours, do trips run much longer than they should — so it
+> can move drivers there, or investigate what's wrong? The trip data exists, but
+> it's scattered across three systems. No source says what 'expected' means. And
+> nearly a third of one field is just missing. So I built a monthly pipeline that
+> turns those three sources into five metrics, with one command."
+
+## [0:25] The live run — SCREEN: terminal, type the command
+
+[TYPE] `python src/pipeline.py 2026-01 2026-02 2026-03`
+
+> "Here's the whole thing. Three months, end to end — about eighteen seconds a
+> month now the data's local. And watch the log as it goes: every stage reports
+> its row counts in and out. Ingest proves the download is complete — row count,
+> date span, required columns. Validate counts every rule violation by name.
+> Nothing is silently dropped: rejects go to a file with their reasons attached,
+> clean plus rejected always adds up to the raw count, exactly. Everything
+> overwrites, so rerunning is safe — the outputs come out byte-identical. And if
+> a source is missing or corrupt, it stops with a named error instead of writing
+> bad numbers."
+
+## [1:20] The shape of it — SCREEN: the workflow diagram
+
+> "The shape is simple. Three sources, two retrieval modes: bulk files for the
+> trips and the zone lookup, an API for the weather. Validate applies seven
+> named rules. The model joins each trip to its zone and to its pickup hour's
+> weather. Metrics computes the five numbers. The full detail is in the README —
+> I want to spend the time on the one decision that changes the answer."
+
+## [1:50] The judgment call — SCREEN: stay on the diagram
+
+> "No source tells you what an 'expected' trip duration is. So I had to invent
+> it — and the choice changes every number downstream. I use the median duration
+> for that zone-pair, at that hour of day. Median, not mean, because the mean
+> gets dragged up by exactly the long trips I'm trying to detect.
+>
+> But then I profiled the grid, and it's mostly empty: seventy percent of
+> zone-pair-by-hour cells hold fewer than five trips. A median of two trips is
+> noise. So cells under thirty trips fall back — zone-pair, to zone, to borough,
+> to citywide — and every trip records which tier it used, so you can audit it.
+>
+> And here's the uncomfortable part. The headline rate is thirty-three percent
+> of trips 'unreliable' — but that's mostly arithmetic, not a finding. With a
+> median benchmark and skewed durations, a third of trips exceed it by
+> construction; I checked. So metric two is a ranking of zone-hours, not a share
+> of broken trips. Central Harlem at four and five PM tops the list in both
+> January and February. That's the finding — not the percentage."
+
+## [3:15] What the numbers say [about 35 seconds] - SCREEN: the output CSV or KEY_FINDINGS.md
+
+> "The worst cells are stable in January and February — Harlem on afternoons and
+> evenings — and they shift in March, which is itself worth investigating. And
+> metric four is a negative result: weather doesn't explain the delays. January
+> says minus four points, February minus six — but March flips to plus two and a
+> half. So the sign isn't even stable. I first wrote this up from January alone
+> and called it settled. Checking all three months is what caught it."
+
+## [3:55] Limits, out loud — SCREEN: back to the repo front page
+
+> "Three limits, because naming them is the point. One: the benchmark is partly
+> self-referential — a trip in a small cell helps set the median it has to beat.
+> Two: a zone that slows down uniformly is invisible, because the median moves
+> with it — that's why the plain averages ship alongside the delay rate. Three:
+> nearly a third of passenger counts are missing from one upstream feed, so I
+> kept those trips and flagged them instead of throwing away a million real rows
+> a month over a field no metric reads. One command reproduces everything,
+> and every judgment call is written down so a reviewer can disagree with any of
+> them and see exactly what would change."
+
+---
+
+## Likely questions (do not read on camera; prep only)
 
 **"Why not just use the mean?"** Because the mean is inflated by the long trips
 metric 2 exists to detect. The median is robust to them.
@@ -115,12 +98,11 @@ metric 2 exists to detect. The median is robust to them.
 **"Isn't a 25% threshold arbitrary?"** It's a judgment call, and a tunable
 constant (`DELAY_THRESHOLD`). I chose it to catch moderate overruns worth acting
 on; 50%+ overruns are already obvious in metric 1's averages. Changing it is a
-one-line change, and the fallback chain means the benchmark moves sensibly either
-way.
+one-line change.
 
-**"Why exclude the missing-passenger-count rows?"** I don't. I only reject
+**"Why didn't you drop the missing-passenger-count rows?"** I only reject
 *populated* values outside 1–6. The ~29% null block is real trips with missing
-metadata, and no metric reads that field, so rejecting them would have discarded
+metadata, and no metric reads that field, so dropping them would have discarded
 about a million real trips per month for no analytical benefit.
 
 **"How do you know retrieval was complete?"** Every run logs a row-count band
